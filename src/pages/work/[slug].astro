@@ -1,0 +1,393 @@
+---
+import { Image } from "astro:assets";
+import Base from "../../layouts/Base.astro";
+import Router from "../../components/Router.astro";
+import Budget from "../../components/Budget.astro";
+import Tokenizer from "../../components/Tokenizer.astro";
+import VlmStages from "../../components/VlmStages.astro";
+import TeachBack from "../../components/TeachBack.astro";
+import PaymentSim from "../../components/PaymentSim.astro";
+import RagChart from "../../components/RagChart.astro";
+import { person, work, vivqaX, cotResults, type Work } from "../../data/profile";
+
+import vivqaFigure from "../../assets/vivqa-figure.png";
+import kdhLanding from "../../assets/shots/kdh-landing.png";
+import kdhSession from "../../assets/shots/kdh-session.png";
+
+export function getStaticPaths() {
+  const pages = work.filter((w) => w.page);
+  return pages.map((item, i) => ({
+    params: { slug: item.slug },
+    props: { item, next: pages[(i + 1) % pages.length] },
+  }));
+}
+
+interface Props {
+  item: Work;
+  next: Work;
+}
+const { item, next } = Astro.props;
+
+const widgets: Record<string, any> = {
+  "adaptive-reasoning-vqa": Router,
+  "multi-mode-cot": Budget,
+  "vietnamese-gpt2": Tokenizer,
+  "vietnamese-vlm": VlmStages,
+  "ke-doc-hanh": TeachBack,
+  smile: PaymentSim,
+  "rag-lab": RagChart,
+};
+const Widget = widgets[item.slug];
+const backSection = item.kind === "research" ? "research" : item.kind === "scratch" ? "models" : item.kind === "more" ? "more" : "work";
+---
+
+<Base title={`${item.short}, ${person.name}`} description={item.lead}>
+  <div class="wrap case ruled">
+    <div class="sheet back">
+      <div class="margin"><a href={`/#${backSection}`}>All work</a></div>
+      <div class="body"></div>
+    </div>
+
+    <header class="sheet case-head">
+      <div class="margin">
+        {item.marginStrong && <span class="m-item m-strong">{item.marginStrong}</span>}
+        {
+          item.margin.map((m) => (
+            <>
+              <br />
+              <span class="m-item">{m}</span>
+            </>
+          ))
+        }
+      </div>
+      <div class="body">
+        <h1 class="case-title">{item.title}</h1>
+        {item.authors && <p class="entry-sub">{item.authors}</p>}
+        <p class="case-lead">{item.lead}</p>
+        {item.result && <p class="result-line">{item.result}</p>}
+        {
+          item.links.length > 0 && (
+            <p class="entry-links">
+              {item.links.map((l) => (
+                <a href={l.href}>{l.label}</a>
+              ))}
+            </p>
+          )
+        }
+      </div>
+    </header>
+
+    {
+      item.body.length > 0 && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Background</span>
+          </div>
+          <div class="body">
+            {item.body.map((p) => (
+              <p class="entry-text">{p}</p>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    {
+      item.did && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Details</span>
+          </div>
+          <div class="body">
+            <ul class="did">
+              {item.did.map((d) => (
+                <li>{d}</li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      Widget && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Try it</span>
+          </div>
+          <div class="body">
+            <Widget />
+          </div>
+        </section>
+      )
+    }
+
+    {
+      item.slug === "adaptive-reasoning-vqa" && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Results</span>
+            <br />
+            <span class="m-item">ViVQA-X</span>
+          </div>
+          <div class="body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">GPT-OSS mode</th>
+                    <th scope="col">BLEU-4</th>
+                    <th scope="col">ROUGE-L</th>
+                    <th scope="col">METEOR</th>
+                    <th scope="col">Time (s)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vivqaX.map((r) => (
+                    <tr class={r.mode === "Adaptive" ? "is-ours" : ""}>
+                      <th scope="row">{r.mode === "Adaptive" ? "Adaptive (ours)" : r.mode}</th>
+                      <td>{r.bleu4.toFixed(3)}</td>
+                      <td>{r.rougeL.toFixed(3)}</td>
+                      <td>{r.meteor.toFixed(3)}</td>
+                      <td>{r.time.toLocaleString("en-US")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <figure class="figure case-fig">
+              <Image src={vivqaFigure} alt="Framework diagram: a captioner describes the image, CLIP scores image–caption similarity s, thresholds τ_low and τ_high pick a reasoning mode r, and GPT-OSS answers the VQA prompt." widths={[520, 1040]} sizes="(max-width: 900px) 100vw, 40rem" />
+              <figcaption class="figure-caption">The framework figure from the paper.</figcaption>
+            </figure>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      item.slug === "multi-mode-cot" && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Results</span>
+            <br />
+            <span class="m-item">Llama 3.2 3B, 0-shot</span>
+          </div>
+          <div class="body">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Student</th>
+                    <th scope="col">GSM8K</th>
+                    <th scope="col">MATH500</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Before distillation</th>
+                    <td>{cotResults.baseline.gsm8k.toFixed(4)}</td>
+                    <td>{cotResults.baseline.math500.toFixed(4)}</td>
+                  </tr>
+                  {(["low", "medium", "high"] as const).map((b) => (
+                    <tr class={b === "low" ? "is-ours" : ""}>
+                      <th scope="row">SFT on {b}-budget traces, then GRPO</th>
+                      <td>{cotResults.grpo[b].gsm8k.toFixed(4)}</td>
+                      <td>{cotResults.grpo[b].math500.toFixed(4)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      item.slug === "ke-doc-hanh" && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Screens</span>
+            <br />
+            <span class="m-item">Mock mode, demo deck</span>
+          </div>
+          <div class="body shots">
+            <figure class="figure case-fig shot">
+              <Image src={kdhLanding} alt="Kẻ Độc Hành landing page with the headline 'Giảng được, mới là hiểu.' (If you can teach it, you understand it.)" widths={[720, 1200, 1800]} sizes="(max-width: 900px) 100vw, 52rem" />
+              <figcaption class="figure-caption">Landing page: “Giảng được, mới là hiểu”, if you can teach it, you understand it.</figcaption>
+            </figure>
+            <figure class="figure case-fig shot">
+              <Image src={kdhSession} alt="A teaching session: the AI student's opening request, the learner's explanation, and the AI's follow-up question, with the slide's source text covered." widths={[720, 1200, 1800]} sizes="(max-width: 900px) 100vw, 52rem" />
+              <figcaption class="figure-caption">A session in progress. The slide region being taught is covered; the student asks a follow-up.</figcaption>
+            </figure>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="sheet case-sec">
+      <div class="margin">
+        <span class="m-item m-strong">Built with</span>
+      </div>
+      <div class="body">
+        <p class="entry-text">{item.stack}</p>
+      </div>
+    </section>
+
+    {
+      item.bibtex && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Cite</span>
+          </div>
+          <div class="body">
+            <pre class="bib"><code>{item.bibtex}</code></pre>
+            <button type="button" class="btn" data-copy-bib>
+              Copy BibTeX
+            </button>
+          </div>
+        </section>
+      )
+    }
+
+    <nav class="sheet case-next" aria-label="Next project">
+      <div class="margin"></div>
+      <div class="body">
+        <p class="entry-sub">Next</p>
+        <a class="next-link" href={`/work/${next.slug}/`}>{next.title}</a>
+      </div>
+    </nav>
+  </div>
+</Base>
+
+<script>
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-copy-bib]")) {
+    b.addEventListener("click", async () => {
+      const text = b.previousElementSibling?.textContent?.trim() ?? "";
+      try {
+        await navigator.clipboard.writeText(text);
+        b.textContent = "Copied";
+      } catch {
+        b.textContent = "Select the text and copy it";
+      }
+      setTimeout(() => (b.textContent = "Copy BibTeX"), 1800);
+    });
+  }
+</script>
+
+<style>
+  .case {
+    padding-bottom: 2rem;
+  }
+  .back {
+    padding-top: 2rem;
+    font-weight: 600;
+  }
+  .case-head {
+    padding-block: 2.5rem 2rem;
+  }
+  .case-title {
+    font-size: clamp(2.1rem, 5vw, 3.6rem);
+    max-width: 22ch;
+  }
+  .case-lead {
+    margin-top: 1.25rem;
+    max-width: var(--measure);
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+  .case-sec {
+    padding-block: 1.5rem;
+  }
+  .did {
+    margin: 0;
+    padding-left: 1.1rem;
+    max-width: var(--measure);
+    display: grid;
+    gap: 0.5rem;
+  }
+  .did li::marker {
+    color: var(--red);
+  }
+  .case-sec .figure {
+    margin-top: 0;
+  }
+  .case-fig {
+    margin-top: 1.5rem;
+  }
+  .shots {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .shot {
+    padding: 0;
+    overflow: hidden;
+  }
+  .shot img {
+    width: 100%;
+    border-bottom: 1px solid var(--rule);
+  }
+  .shot .figure-caption {
+    margin: 0;
+    padding: 0.85rem 1.1rem;
+  }
+
+  .table-wrap {
+    max-width: 44rem;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+  }
+  th,
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    text-align: right;
+    white-space: nowrap;
+  }
+  thead th {
+    color: var(--pencil);
+    font-weight: 600;
+  }
+  th[scope="row"],
+  thead th:first-child {
+    text-align: left;
+    font-weight: 600;
+    white-space: normal;
+  }
+  tr.is-ours th,
+  tr.is-ours td {
+    color: var(--ink);
+    font-weight: 800;
+  }
+
+  .bib {
+    margin: 0 0 1rem;
+    padding: 1rem 1.1rem;
+    max-width: 52rem;
+    overflow-x: auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper-raised);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    white-space: pre;
+  }
+  .case-next {
+    padding-block: 3rem 1rem;
+  }
+  .next-link {
+    display: inline-block;
+    margin-top: 0.35rem;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    max-width: 30ch;
+  }
+</style>

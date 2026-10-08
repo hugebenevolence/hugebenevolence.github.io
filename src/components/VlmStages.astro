@@ -1,0 +1,212 @@
+---
+// Two-stage LLaVA-style training for the Vietnamese VLM (pretrain_vlm/README.md).
+const modules = [
+  { key: "vision", name: "SigLIP2 so400m", note: "576 image tokens", s1: false, s2: false },
+  { key: "proj", name: "MLP projector", note: "image to word space", s1: true, s2: true },
+  { key: "llm", name: "Llama 3.2 1B", note: "writes Vietnamese", s1: false, s2: true },
+];
+const stages = {
+  1: {
+    title: "Stage 1, alignment",
+    rows: [
+      ["Learns", "the projector only"],
+      ["Data", "Vietnamese COCO 2017 captions and UIT-OpenViIC, sampled so each source counts equally"],
+      ["Optimizer", "AdamW, learning rate 1e-3, 2 epochs"],
+    ],
+  },
+  2: {
+    title: "Stage 2, instruction tuning",
+    rows: [
+      ["Learns", "the projector and the language model"],
+      ["Data", "Viet-ShareGPT-4o Text-VQA, Viet-Localization-VQA, and tourism Q&A we crawled and generated with the OpenAI Batch API"],
+      ["Optimizer", "Adafactor, 1e-4 for the projector and 2e-5 for the LLM, 1 epoch"],
+    ],
+  },
+};
+---
+
+<div class="figure vlm" data-vlm data-stage="1">
+  <div class="seg" role="group" aria-label="Training stage">
+    <button type="button" data-stage-btn="1" aria-pressed="true">Stage 1</button>
+    <button type="button" data-stage-btn="2" aria-pressed="false">Stage 2</button>
+  </div>
+
+  <ol class="vlm-flow">
+    <li class="vlm-io">Photo</li>
+    {
+      modules.map((m) => (
+        <li class="vlm-mod" data-s1={m.s1 ? "train" : "frozen"} data-s2={m.s2 ? "train" : "frozen"}>
+          <span class="vlm-name">{m.name}</span>
+          <span class="vlm-note">{m.note}</span>
+          <span class="vlm-state" />
+        </li>
+      ))
+    }
+    <li class="vlm-io">Answer in Vietnamese</li>
+  </ol>
+
+  {
+    Object.entries(stages).map(([k, s]) => (
+      <div class="vlm-detail" data-detail={k} hidden={k !== "1"}>
+        <p class="vlm-detail-title">{s.title}</p>
+        <dl>
+          {s.rows.map(([a, b]) => (
+            <div>
+              <dt>{a}</dt>
+              <dd>{b}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>("[data-vlm]")) {
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-stage-btn]")];
+    const set = (s: string) => {
+      root.dataset.stage = s;
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.stageBtn === s)));
+      root.querySelectorAll<HTMLElement>("[data-detail]").forEach((d) => (d.hidden = d.dataset.detail !== s));
+    };
+    buttons.forEach((b) => b.addEventListener("click", () => set(b.dataset.stageBtn!)));
+  }
+</script>
+
+<style>
+  .vlm-flow {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: auto repeat(3, minmax(0, 1fr)) auto;
+    align-items: stretch;
+    gap: 1.6rem;
+  }
+  .vlm-flow > li {
+    position: relative;
+  }
+  .vlm-flow > li + li::before {
+    content: "";
+    position: absolute;
+    left: -1.35rem;
+    top: 50%;
+    width: 1.1rem;
+    border-top: 1.5px solid var(--pencil);
+  }
+  .vlm-flow > li + li::after {
+    content: "";
+    position: absolute;
+    left: -0.42rem;
+    top: calc(50% - 4px);
+    border: 4.5px solid transparent;
+    border-left: 6px solid var(--pencil);
+  }
+  .vlm-io {
+    display: flex;
+    align-items: center;
+    font-size: 0.9375rem;
+    color: var(--pencil);
+    max-width: 7rem;
+    line-height: 1.3;
+  }
+  .vlm-mod {
+    display: grid;
+    gap: 0.2rem;
+    align-content: start;
+    padding: 0.85rem 0.9rem;
+    border-radius: var(--radius);
+    border: 1.5px dashed var(--pencil);
+    color: var(--pencil);
+    transition:
+      background-color 0.3s,
+      border-color 0.3s,
+      color 0.3s;
+  }
+  .vlm-name {
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+  .vlm-note {
+    font-size: 0.8125rem;
+  }
+  .vlm-state {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .vlm-state::before {
+    content: "Frozen";
+  }
+  [data-stage="1"] .vlm-mod[data-s1="train"],
+  [data-stage="2"] .vlm-mod[data-s2="train"] {
+    border-style: solid;
+    border-color: var(--ink);
+    background: var(--ink-soft);
+    color: var(--ink);
+  }
+  [data-stage="1"] .vlm-mod[data-s1="train"] .vlm-state::before,
+  [data-stage="2"] .vlm-mod[data-s2="train"] .vlm-state::before {
+    content: "Training";
+  }
+  [data-stage="1"] .vlm-mod[data-s1="train"] .vlm-name,
+  [data-stage="2"] .vlm-mod[data-s2="train"] .vlm-name {
+    color: var(--text);
+  }
+
+  .vlm-detail {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+  .vlm-detail-title {
+    font-weight: 600;
+  }
+  .vlm-detail dl {
+    margin: 0.6rem 0 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .vlm-detail dl div {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 1rem;
+    font-size: 0.9375rem;
+  }
+  .vlm-detail dt {
+    color: var(--pencil);
+  }
+  .vlm-detail dd {
+    margin: 0;
+  }
+
+  @media (max-width: 720px) {
+    .vlm-flow {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.4rem;
+    }
+    .vlm-io {
+      max-width: none;
+    }
+    .vlm-flow > li + li::before {
+      left: 1.25rem;
+      top: -1.2rem;
+      width: 0;
+      height: 1rem;
+      border-top: 0;
+      border-left: 1.5px solid var(--pencil);
+    }
+    .vlm-flow > li + li::after {
+      left: calc(1.25rem - 4.5px);
+      top: -0.42rem;
+      border: 4.5px solid transparent;
+      border-top: 6px solid var(--pencil);
+    }
+    .vlm-detail dl div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.1rem;
+    }
+  }
+</style>

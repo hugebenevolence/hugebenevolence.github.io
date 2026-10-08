@@ -1,0 +1,305 @@
+---
+import "../styles/global.css";
+import { person } from "../data/profile";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${person.name} (${person.latinName}), AI engineer`,
+  description = "Trần Đại Nhân is an AI engineer in Hà Nội working on Vietnamese language and vision models, reasoning efficiency, and the backend systems that ship them.",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og.png", Astro.site);
+const isHome = Astro.url.pathname === "/";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: person.name,
+  alternateName: person.latinName,
+  jobTitle: "AI Engineer",
+  url: Astro.site?.toString(),
+  email: `mailto:${person.email}`,
+  address: { "@type": "PostalAddress", addressLocality: "Hà Nội", addressCountry: "VN" },
+  alumniOf: { "@type": "CollegeOrUniversity", name: "FPT University" },
+  sameAs: [person.github, person.linkedin, person.orcid],
+};
+
+const nav = [
+  { href: "/#research", label: "Research" },
+  { href: "/#work", label: "Work" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/#contact", label: "Contact" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#f6f5fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14122a" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content={isHome ? "profile" : "article"} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="topbar" data-topbar>
+      <div class="wrap topbar-inner">
+        <a class="brand" href="/">{person.name}</a>
+        <nav class="topnav" aria-label="Sections" data-nav>
+          <ul>
+            {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+            <li><a href={person.cv}>CV</a></li>
+          </ul>
+        </nav>
+        <div class="topbar-tools">
+          <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch to dark theme">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.75"></circle>
+              <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"></path>
+            </svg>
+          </button>
+          <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" data-menu>
+            <span class="sr-only">Menu</span>
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <nav id="mobile-nav" class="mobile-nav" aria-label="Sections" hidden>
+        <ul class="wrap">
+          {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+          <li><a href={person.cv}>CV (PDF)</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="wrap sheet ruled footer-sheet">
+        <div class="margin">2026</div>
+        <div class="body footer-body">
+          <p>
+            {person.name}. Every number on this site comes from the linked repositories and
+            papers.
+          </p>
+          <p class="footer-links">
+            <a href={person.github}>GitHub</a>
+            <a href={person.linkedin}>LinkedIn</a>
+            <a href={person.orcid}>ORCID</a>
+            <a href={`mailto:${person.email}`}>{person.email}</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Theme toggle: follows the system until the visitor picks one.
+      const root = document.documentElement;
+      const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+      const isDark = () =>
+        root.dataset.theme
+          ? root.dataset.theme === "dark"
+          : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const label = () =>
+        toggle?.setAttribute("aria-label", isDark() ? "Switch to light theme" : "Switch to dark theme");
+      label();
+      toggle?.addEventListener("click", () => {
+        const next = isDark() ? "light" : "dark";
+        root.dataset.theme = next;
+        try {
+          localStorage.setItem("theme", next);
+        } catch {}
+        label();
+      });
+
+      // Mobile menu
+      const menuBtn = document.querySelector<HTMLButtonElement>("[data-menu]");
+      const mobileNav = document.getElementById("mobile-nav");
+      const setMenu = (open: boolean) => {
+        menuBtn?.setAttribute("aria-expanded", String(open));
+        if (mobileNav) mobileNav.hidden = !open;
+      };
+      menuBtn?.addEventListener("click", () => setMenu(menuBtn.getAttribute("aria-expanded") !== "true"));
+      mobileNav?.addEventListener("click", (e) => {
+        if ((e.target as HTMLElement).closest("a")) setMenu(false);
+      });
+
+      // Hairline under the top bar once the page scrolls
+      const topbar = document.querySelector("[data-topbar]");
+      const onScroll = () => topbar?.classList.toggle("is-scrolled", window.scrollY > 8);
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+
+      // Red-pen rings draw once when their number scrolls into view
+      const rings = document.querySelectorAll(".ring");
+      if ("IntersectionObserver" in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add("is-drawn");
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -15% 0px" },
+        );
+        rings.forEach((r) => io.observe(r));
+      } else {
+        rings.forEach((r) => r.classList.add("is-drawn"));
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 100;
+    padding: 0.5rem 0.75rem;
+    background: var(--ink);
+    color: var(--on-ink);
+    border-radius: var(--radius);
+  }
+  .skip:focus {
+    top: 1rem;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .topbar.is-scrolled {
+    border-bottom-color: var(--rule);
+  }
+  .topbar-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 4rem;
+  }
+  .brand {
+    font-weight: 800;
+    font-size: 1.0625rem;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .topnav {
+    margin-left: auto;
+  }
+  .topnav ul {
+    display: flex;
+    gap: 1.75rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .topnav a,
+  .mobile-nav a {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+  .topnav a:hover,
+  .mobile-nav a:hover {
+    color: var(--ink);
+  }
+  .topbar-tools {
+    display: flex;
+    gap: 0.25rem;
+  }
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .icon-btn:hover {
+    background: var(--ink-soft);
+    color: var(--ink);
+  }
+  .menu-btn {
+    display: none;
+  }
+  .mobile-nav {
+    border-top: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .mobile-nav ul {
+    list-style: none;
+    padding-block: 0.5rem 1rem;
+  }
+  .mobile-nav li a {
+    display: block;
+    padding: 0.7rem 0;
+    font-size: 1.0625rem;
+  }
+  @media (max-width: 760px) {
+    .topnav {
+      display: none;
+    }
+    .topbar-tools {
+      margin-left: auto;
+    }
+    .menu-btn {
+      display: grid;
+    }
+  }
+
+  .footer {
+    color: var(--pencil);
+    font-size: 0.9375rem;
+  }
+  .footer-sheet {
+    padding-block: 3rem 3rem;
+  }
+  .footer-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+  }
+</style>

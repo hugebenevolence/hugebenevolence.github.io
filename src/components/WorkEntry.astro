@@ -1,0 +1,71 @@
+---
+import type { Work } from "../data/profile";
+
+interface Props {
+  item: Work;
+  /** Render body paragraphs too (used where there is no case-study page) */
+  full?: boolean;
+  /** Key number in the result line to circle in red pen */
+  ring?: string;
+}
+const { item, full = false, ring } = Astro.props;
+
+// Split the result sentence around the ringed number so it can be wrapped.
+const parts = ring && item.result?.includes(ring) ? item.result.split(ring) : null;
+---
+
+<article class="sheet entry" id={item.slug}>
+  <div class="margin">
+    {item.marginStrong && <span class="m-item m-strong">{item.marginStrong}</span>}
+    {
+      item.margin.map((m) => (
+        <>
+          <br />
+          <span class="m-item">{m}</span>
+        </>
+      ))
+    }
+  </div>
+  <div class="body">
+    <h3 class="entry-title">{item.title}</h3>
+    {item.authors && <p class="entry-sub">{item.authors}</p>}
+    <p class="entry-text">{item.lead}</p>
+    {full && item.body.map((p) => <p class="entry-text">{p}</p>)}
+    {
+      item.result && (
+        <p class="result-line">
+          {parts ? (
+            <>
+              {parts[0]}
+              <span class="ring num">
+                {ring}
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+                  <path
+                    pathLength="1"
+                    vector-effect="non-scaling-stroke"
+                    d="M12 25C6 13 34 4 60 4.5C84 5 98 12 96 22C94 33 66 38 42 37C18 36 3 30 7 19C10 11 21 8 31 7"
+                  />
+                </svg>
+              </span>
+              {parts.slice(1).join(ring)}
+            </>
+          ) : (
+            item.result
+          )}
+        </p>
+      )
+    }
+    <slot />
+    <p class="stack">{item.stack}</p>
+    {
+      (item.page || item.links.length > 0) && (
+        <p class="entry-links">
+          {item.page && <a href={`/work/${item.slug}/`}>Read the case study</a>}
+          {item.links.map((l) => (
+            <a href={l.href}>{l.label}</a>
+          ))}
+        </p>
+      )
+    }
+  </div>
+</article>

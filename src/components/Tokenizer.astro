@@ -1,0 +1,164 @@
+---
+// Same sentence, two byte-level BPE tokenizers with the same 50,257-token
+// budget: stock GPT-2 and the one trained for Vietnamese GPT-2.
+// Data: scripts/build_tokens.py -> src/data/tokens.json
+import tokens from "../data/tokens.json";
+
+const samples = tokens.slice(1);
+const data = JSON.stringify(samples);
+---
+
+<div class="figure tokzr" data-tokzr={data}>
+  <div class="tk-pick" role="group" aria-label="Sentence">
+    {
+      samples.map((s, i) => (
+        <button type="button" class="tk-chip" data-i={i} aria-pressed={i === 0 ? "true" : "false"}>
+          {s.text}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="tk-rows">
+    <div class="tk-row is-gpt2">
+      <p class="tk-label"><strong class="num" data-n="gpt2"></strong> tokens with GPT-2</p>
+      <p class="tk-pieces" data-pieces="gpt2"></p>
+    </div>
+    <div class="tk-row is-vi">
+      <p class="tk-label"><strong class="num" data-n="vi"></strong> tokens with our tokenizer</p>
+      <p class="tk-pieces" data-pieces="vi"></p>
+    </div>
+  </div>
+  <p class="figure-caption" data-ratio aria-live="polite"></p>
+</div>
+
+<script>
+  type Tok = [number, number, string];
+  type Sample = { text: string; gpt2: Tok[]; vi: Tok[] };
+
+  const pieces = (sample: Sample, list: Tok[]) => {
+    const chars = [...sample.text];
+    const frag = new Map<string, number>();
+    list.forEach(([s, e]) => frag.set(`${s}:${e}`, (frag.get(`${s}:${e}`) ?? 0) + 1));
+    const seen = new Map<string, number>();
+    return list.map(([s, e, hex]) => {
+      const key = `${s}:${e}`;
+      const n = frag.get(key)!;
+      const i = (seen.get(key) ?? 0) + 1;
+      seen.set(key, i);
+      const el = document.createElement("span");
+      el.className = "tk";
+      el.title = `bytes ${hex}`;
+      if (n > 1) {
+        // A letter split across several byte tokens: show it once, then thin slivers.
+        el.classList.add("is-frag");
+        if (i === 1) el.textContent = chars.slice(s, e).join("");
+        else el.classList.add("is-cont");
+        el.setAttribute("aria-label", `part ${i} of ${n} of “${chars.slice(s, e).join("")}”`);
+      } else {
+        el.textContent = chars.slice(s, e).join("");
+      }
+      return el;
+    });
+  };
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-tokzr]")) {
+    const samples = JSON.parse(root.dataset.tokzr!) as Sample[];
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-i]")];
+    const ratio = root.querySelector<HTMLElement>("[data-ratio]")!;
+    const show = (i: number) => {
+      const s = samples[i];
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.i) === i)));
+      for (const k of ["gpt2", "vi"] as const) {
+        root.querySelector(`[data-n="${k}"]`)!.textContent = String(s[k].length);
+        root.querySelector(`[data-pieces="${k}"]`)!.replaceChildren(...pieces(s, s[k]));
+      }
+      const r = s.gpt2.length / s.vi.length;
+      ratio.textContent =
+        r >= 1
+          ? `GPT-2 needs ${r.toFixed(1)}× as many tokens for this sentence.`
+          : `The trade-off: English costs our tokenizer ${(1 / r).toFixed(1)}× as many tokens, because its vocabulary was spent on Vietnamese.`;
+    };
+    buttons.forEach((b) => b.addEventListener("click", () => show(Number(b.dataset.i))));
+    show(0);
+  }
+</script>
+
+<style>
+  .tk-pick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .tk-chip {
+    font: 400 0.9375rem/1.3 var(--sans);
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.75rem;
+    min-height: 40px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .tk-chip:hover {
+    border-color: var(--ink);
+  }
+  .tk-chip[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink-soft);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .tk-rows {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .tk-label {
+    font-size: 0.9375rem;
+    color: var(--pencil);
+    margin-bottom: 0.5rem;
+  }
+  .tk-label strong {
+    font-size: 1.5rem;
+    margin-right: 0.25rem;
+  }
+  .is-gpt2 .tk-label strong {
+    color: var(--red);
+  }
+  .is-vi .tk-label strong {
+    color: var(--ink);
+  }
+  .tk-pieces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 1.0625rem;
+    line-height: 1;
+  }
+  .tk-pieces :global(.tk) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.1rem;
+    padding: 0 0.4rem;
+    border: 1.5px solid;
+    border-radius: 3px;
+    white-space: pre;
+  }
+  .is-gpt2 :global(.tk) {
+    border-color: var(--red);
+    background: var(--red-soft);
+  }
+  .is-vi :global(.tk) {
+    border-color: var(--ink);
+    background: var(--ink-soft);
+  }
+  .is-gpt2 :global(.tk.is-cont) {
+    width: 0.55rem;
+    padding: 0;
+    background: repeating-linear-gradient(0deg, var(--red) 0 1.5px, var(--red-soft) 1.5px 6px);
+  }
+</style>

@@ -1,0 +1,151 @@
+---
+// Paper-reproduction agents (Vingroup AI Talent Program). Agents collect and
+// diagnose; a person writes code and makes the call.
+const lanes = [
+  { source: "The paper", agent: "Paper agent", out: "what the paper claims" },
+  { source: "The repository", agent: "Repo agent", out: "what the code actually ships" },
+  { source: "GitHub issues", agent: "Issue agent", out: "what others hit when they tried" },
+];
+---
+
+<div class="figure pipe">
+  <div class="pp-grid">
+    <ol class="pp-lanes">
+      {
+        lanes.map((l) => (
+          <li class="pp-lane">
+            <span class="pp-source">{l.source}</span>
+            <span class="pp-agent">
+              <strong>{l.agent}</strong>
+              <span>{l.out}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="pp-merge">
+      <span class="pp-agent pp-rec">
+        <strong>Reconciler</strong>
+        <span>one completeness checklist</span>
+      </span>
+    </div>
+    <div class="pp-human">
+      <strong>Human reviewer</strong>
+      <span>writes the code and makes the final call</span>
+    </div>
+  </div>
+  <p class="figure-caption">Agents may collect and diagnose. They do not write code or decide whether a paper reproduces.</p>
+</div>
+
+<style>
+  .pp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2rem;
+    align-items: center;
+  }
+  .pp-lanes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .pp-lane {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: center;
+    position: relative;
+  }
+  .pp-source {
+    font-size: 0.9375rem;
+    color: var(--pencil);
+    position: relative;
+  }
+  .pp-source::after {
+    content: "";
+    position: absolute;
+    right: -1.1rem;
+    top: 50%;
+    width: 0.9rem;
+    border-top: 1.5px solid var(--pencil);
+  }
+  .pp-agent {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--ink-soft);
+    font-size: 0.875rem;
+    line-height: 1.35;
+    position: relative;
+  }
+  .pp-agent strong {
+    font-size: 0.9375rem;
+    color: var(--text);
+  }
+  .pp-lane .pp-agent::after {
+    content: "";
+    position: absolute;
+    right: -1.85rem;
+    top: 50%;
+    width: 1.75rem;
+    border-top: 1.5px solid var(--pencil);
+  }
+  .pp-merge {
+    position: relative;
+  }
+  .pp-merge::before {
+    content: "";
+    position: absolute;
+    left: -0.25rem;
+    top: -4.4rem;
+    bottom: -4.4rem;
+    border-left: 1.5px solid var(--pencil);
+  }
+  .pp-rec {
+    margin-left: 0.75rem;
+  }
+  .pp-rec::after {
+    content: "";
+    position: absolute;
+    right: -1.85rem;
+    top: 50%;
+    width: 1.75rem;
+    border-top: 1.5px solid var(--red);
+  }
+  .pp-human {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.75rem 0.9rem;
+    border: 2px solid var(--red);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+  .pp-human strong {
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 760px) {
+    .pp-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+    .pp-lane {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.3rem;
+    }
+    .pp-source::after,
+    .pp-lane .pp-agent::after,
+    .pp-merge::before,
+    .pp-rec::after {
+      display: none;
+    }
+    .pp-rec {
+      margin-left: 0;
+    }
+  }
+</style>

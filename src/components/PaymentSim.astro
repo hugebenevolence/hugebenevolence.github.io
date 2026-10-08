@@ -1,0 +1,234 @@
+---
+// A small simulation of the rules the S.M.I.L.E payment and booking services enforce.
+---
+
+<div class="figure paysim" data-paysim data-tab="pay">
+  <div class="seg" role="group" aria-label="Scenario">
+    <button type="button" data-tab-btn="pay" aria-pressed="true">A payment request is retried</button>
+    <button type="button" data-tab-btn="slot" aria-pressed="false">Two patients, one slot</button>
+  </div>
+
+  <div class="ps-panel" data-panel="pay">
+    <div class="ps-controls">
+      <button type="button" class="btn btn-fill" data-act="pay">Pay 350,000 ₫</button>
+      <button type="button" class="btn" data-act="retry">Send it again</button>
+      <button type="button" class="btn" data-act="callback">VNPay calls back</button>
+      <button type="button" class="btn" data-act="replay">Replay the callback</button>
+    </div>
+    <label class="ps-switch">
+      <input type="checkbox" checked data-idem />
+      <span>Idempotency key in Redis</span>
+    </label>
+    <div class="ps-status">
+      <p><span class="ps-big num" data-created>0</span> payments created</p>
+      <p><span class="ps-big num" data-paid>0</span> marked paid</p>
+    </div>
+    <ol class="ps-log" aria-live="polite" data-log></ol>
+  </div>
+
+  <div class="ps-panel" data-panel="slot" hidden>
+    <p class="ps-intro">One dentist's Monday. Two patients press Book on 09:30 within the same millisecond.</p>
+    <ul class="ps-slots" data-slots>
+      <li data-t="09:00">09:00</li>
+      <li data-t="09:30">09:30</li>
+      <li data-t="10:00">10:00</li>
+      <li data-t="10:30">10:30</li>
+    </ul>
+    <div class="ps-controls">
+      <button type="button" class="btn btn-fill" data-act="race">Both book 09:30</button>
+      <button type="button" class="btn" data-act="reset-slot">Reset</button>
+    </div>
+    <ol class="ps-log" aria-live="polite" data-slot-log></ol>
+  </div>
+
+  <p class="figure-caption">
+    A simulation of the rules the services enforce, not the live system. Keys and amounts are made up.
+  </p>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>("[data-paysim]")) {
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>("[data-tab-btn]")];
+    tabs.forEach((t) =>
+      t.addEventListener("click", () => {
+        tabs.forEach((x) => x.setAttribute("aria-pressed", String(x === t)));
+        root.querySelectorAll<HTMLElement>("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== t.dataset.tabBtn));
+      }),
+    );
+
+    // ---- payments ----
+    const log = $("[data-log]");
+    const idem = $<HTMLInputElement>("[data-idem]");
+    const KEY = "7f3c9a1e";
+    let payments: string[] = [];
+    const seenKeys = new Map<string, string>();
+    const processed = new Set<string>();
+    let next = 1042;
+
+    const write = (list: HTMLElement, text: string, tone: "ok" | "warn" | "plain" = "plain") => {
+      const li = document.createElement("li");
+      li.className = `is-${tone}`;
+      li.textContent = text;
+      list.append(li);
+      while (list.children.length > 5) list.firstElementChild!.remove();
+    };
+    const refresh = () => {
+      $("[data-created]").textContent = String(payments.length);
+      $("[data-created]").classList.toggle("is-bad", payments.length > 1);
+      $("[data-paid]").textContent = String(processed.size);
+      $("[data-paid]").classList.toggle("is-bad", processed.size > 1);
+    };
+    const create = (retry: boolean) => {
+      if (idem.checked && seenKeys.has(KEY)) {
+        write(log, `POST /payments, key ${KEY}: key already seen, returns ${seenKeys.get(KEY)}. Nothing new is created.`, "ok");
+        return;
+      }
+      const id = `P-${next++}`;
+      payments.push(id);
+      if (idem.checked) seenKeys.set(KEY, id);
+      write(
+        log,
+        idem.checked
+          ? `POST /payments, key ${KEY}: new key, creates ${id} and a VNPay QR.`
+          : `POST /payments${retry ? " (retry)" : ""}: creates ${id} and a VNPay QR.`,
+        payments.length > 1 ? "warn" : "plain",
+      );
+      if (payments.length > 1) write(log, `The patient now has ${payments.length} open payments for one visit.`, "warn");
+    };
+    root.querySelector('[data-act="pay"]')!.addEventListener("click", () => {
+      create(false);
+      refresh();
+    });
+    root.querySelector('[data-act="retry"]')!.addEventListener("click", () => {
+      if (!payments.length) return write(log, "Nothing to retry yet. Press Pay first.");
+      create(true);
+      refresh();
+    });
+    const callback = (replay: boolean) => {
+      const id = payments[payments.length - 1];
+      if (!id) return write(log, "No payment to confirm yet. Press Pay first.");
+      if (!replay && processed.has(id)) return write(log, `${id} is already paid.`);
+      const target = replay ? [...processed].pop() : id;
+      if (!target) return write(log, "No callback to replay yet. Let VNPay call back first.");
+      if (processed.has(target)) {
+        write(log, `VNPay callback for ${target}: signature valid, but this transaction was already applied. Ignored.`, "ok");
+      } else {
+        processed.add(target);
+        write(log, `VNPay callback for ${target}: signature verified, first delivery. Marked paid.`, "ok");
+      }
+      refresh();
+    };
+    root.querySelector('[data-act="callback"]')!.addEventListener("click", () => callback(false));
+    root.querySelector('[data-act="replay"]')!.addEventListener("click", () => callback(true));
+    idem.addEventListener("change", () => {
+      payments = [];
+      seenKeys.clear();
+      processed.clear();
+      log.replaceChildren();
+      write(log, idem.checked ? "Idempotency key on. Try paying, then sending it again." : "Idempotency key off. Now try sending the same request twice.");
+      refresh();
+    });
+
+    // ---- booking race ----
+    const slotLog = $("[data-slot-log]");
+    const slot = root.querySelector<HTMLElement>('[data-t="09:30"]')!;
+    root.querySelector('[data-act="race"]')!.addEventListener("click", () => {
+      if (slot.dataset.taken) return write(slotLog, "09:30 is already taken. Reset to try again.");
+      write(slotLog, "Patient A and Patient B both send POST /appointments for 09:30.");
+      write(slotLog, "The database lets one write claim the slot; A's commits first. A is booked.", "ok");
+      write(slotLog, "B's write finds the slot taken and is refused. B sees: “That time was just booked, pick another.”", "ok");
+      slot.dataset.taken = "A";
+    });
+    root.querySelector('[data-act="reset-slot"]')!.addEventListener("click", () => {
+      delete slot.dataset.taken;
+      slotLog.replaceChildren();
+    });
+  }
+</script>
+
+<style>
+  .ps-panel {
+    margin-top: 1.25rem;
+  }
+  .ps-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .ps-switch {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ps-switch input {
+    width: 1.15rem;
+    height: 1.15rem;
+    accent-color: var(--ink);
+  }
+  .ps-status {
+    margin-top: 1rem;
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9375rem;
+    color: var(--pencil);
+  }
+  .ps-big {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-right: 0.3rem;
+  }
+  .ps-big.is-bad {
+    color: var(--red);
+  }
+  .ps-log {
+    margin: 1rem 0 0;
+    padding: 0.75rem 0 0 1.25rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    min-height: 5.5rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .ps-log :global(li.is-warn) {
+    color: var(--red);
+  }
+  .ps-log :global(li.is-ok)::marker {
+    color: var(--ink);
+  }
+  .ps-intro {
+    font-size: 1rem;
+  }
+  .ps-slots {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .ps-slots li {
+    padding: 0.5rem 0.9rem;
+    border: 1.5px solid var(--rule);
+    border-radius: var(--radius);
+    font-family: var(--mono);
+    font-size: 0.9375rem;
+  }
+  .ps-slots li[data-t="09:30"] {
+    border-color: var(--ink);
+  }
+  .ps-slots li[data-taken] {
+    background: var(--ink);
+    color: var(--on-ink);
+  }
+  .ps-slots li[data-taken]::after {
+    content: " (A)";
+  }
+</style>

@@ -1,0 +1,478 @@
+---
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import NameTokens from "../components/NameTokens.astro";
+import WorkEntry from "../components/WorkEntry.astro";
+import Router from "../components/Router.astro";
+import Budget from "../components/Budget.astro";
+import Tokenizer from "../components/Tokenizer.astro";
+import VlmStages from "../components/VlmStages.astro";
+import TeachBack from "../components/TeachBack.astro";
+import PaymentSim from "../components/PaymentSim.astro";
+import Pipeline from "../components/Pipeline.astro";
+import RagChart from "../components/RagChart.astro";
+import { person, experience, education, community, awards, workBySlug } from "../data/profile";
+
+import kdhSession from "../assets/shots/kdh-session.png";
+import codeRace from "../assets/code-race.jpg";
+import cat from "../assets/pet-cat.png";
+import dog from "../assets/pet-dog.png";
+---
+
+<Base>
+  <section class="hero" aria-labelledby="hero-name">
+    <div class="hero-paper oli" aria-hidden="true"></div>
+    <div class="wrap sheet hero-sheet ruled">
+      <div class="margin">
+        <span class="m-item m-strong">{person.role}</span><br /><span class="m-item">{person.city}</span>
+      </div>
+      <div class="body" id="hero-name">
+        <NameTokens />
+        <p class="hero-lede">
+          I train models that read Vietnamese properly, make them think only as hard as a question needs, and
+          build the services that put them in front of people.
+        </p>
+        <p class="hero-now">
+          <strong>Now, {person.now.date}.</strong>{" "}{person.now.text}
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-fill" href={`mailto:${person.email}`}>Email me</a>
+          <a class="btn" href={person.cv}>Download CV</a>
+          <span class="hero-links">
+            <a href={person.github}>GitHub</a>
+            <a href={person.orcid}>ORCID</a>
+            <a href={person.linkedin}>LinkedIn</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap ruled">
+    <section id="research" class="section" aria-labelledby="research-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="research-title">Research</h2>
+          <p class="section-lede">
+            Two papers accepted in 2026, both asking the same question: how much reasoning does a model actually
+            need for this input?
+          </p>
+        </div>
+      </div>
+      <WorkEntry item={workBySlug("adaptive-reasoning-vqa")} ring="815 s">
+        <Router />
+      </WorkEntry>
+      <WorkEntry item={workBySlug("multi-mode-cot")} ring="0.8006">
+        <Budget />
+      </WorkEntry>
+    </section>
+
+    <section id="models" class="section" aria-labelledby="models-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="models-title">Vietnamese models</h2>
+          <p class="section-lede">
+            A language model trained from random weights, and a vision-language model assembled from pretrained
+            parts. Team projects at AI VIET NAM.
+          </p>
+        </div>
+      </div>
+      <WorkEntry item={workBySlug("vietnamese-gpt2")}>
+        <Tokenizer />
+      </WorkEntry>
+      <WorkEntry item={workBySlug("vietnamese-vlm")}>
+        <VlmStages />
+      </WorkEntry>
+    </section>
+
+    <section id="work" class="section" aria-labelledby="work-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="work-title">Products and systems</h2>
+          <p class="section-lede">Software with users, money or a deadline attached.</p>
+        </div>
+      </div>
+      <WorkEntry item={workBySlug("ke-doc-hanh")} ring="$5">
+        <figure class="figure shot">
+          <Image
+            src={kdhSession}
+            alt="Kẻ Độc Hành session: the AI student asks the learner to explain 'Token là gì?', the learner's explanation, and the AI's follow-up question, with the slide's source text covered."
+            widths={[720, 1200, 1800]}
+            sizes="(max-width: 900px) 100vw, 52rem"
+          />
+          <figcaption class="figure-caption">
+            Running locally in mock mode with a demo deck. The part of the slide being explained stays covered
+            until the session ends.
+          </figcaption>
+        </figure>
+        <TeachBack />
+      </WorkEntry>
+      <WorkEntry item={workBySlug("smile")}>
+        <PaymentSim />
+      </WorkEntry>
+      <WorkEntry item={workBySlug("paper-reproduction-agents")} full>
+        <Pipeline />
+      </WorkEntry>
+      <WorkEntry item={workBySlug("pawcal")} />
+    </section>
+
+    <section id="more" class="section" aria-labelledby="more-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="more-title">Smaller projects</h2>
+        </div>
+      </div>
+      <WorkEntry item={workBySlug("rag-lab")}>
+        <RagChart />
+      </WorkEntry>
+      <WorkEntry item={workBySlug("brainify")} />
+    </section>
+
+    <section id="experience" class="section" aria-labelledby="exp-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="exp-title">Experience</h2>
+        </div>
+      </div>
+      {
+        experience.map((e) => (
+          <article class="sheet entry exp">
+            <div class="margin">
+              <span class="m-item m-strong">{e.when}</span>
+              <br />
+              <span class="m-item">{e.where}</span>
+            </div>
+            <div class="body">
+              <h3 class="entry-title">{e.org}</h3>
+              <p class="entry-sub">{e.title}</p>
+              <ul class="points">
+                {e.points.map((p) => (
+                  <li>{p}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))
+      }
+      <article class="sheet entry exp">
+        <div class="margin">
+          <span class="m-item m-strong">{education.when}</span>
+        </div>
+        <div class="body">
+          <h3 class="entry-title">{education.school}</h3>
+          <p class="entry-sub">{education.degree}, GPA {education.gpa}</p>
+        </div>
+      </article>
+    </section>
+
+    <section id="community" class="section" aria-labelledby="community-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="community-title">Teaching and community</h2>
+        </div>
+      </div>
+      <div class="sheet entry">
+        <div class="margin"></div>
+        <div class="body">
+          <figure class="figure photo">
+            <Image
+              src={codeRace}
+              alt="Trần Đại Nhân speaking into a microphone in front of a projected 'Code Race' slide at an FCODER event."
+              widths={[720, 1200, 1800]}
+              sizes="(max-width: 900px) 100vw, 52rem"
+            />
+            <figcaption class="figure-caption">Opening Code Race, an FCODER programming contest at FPT University.</figcaption>
+          </figure>
+          <ul class="plain-list">
+            {
+              community.map((c) => (
+                <li>
+                  <h3 class="li-title">{c.title}</h3>
+                  <p class="li-when">{c.when}</p>
+                  <p>{c.text}</p>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="awards" class="section" aria-labelledby="awards-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="awards-title">Awards</h2>
+        </div>
+      </div>
+      <div class="sheet entry">
+        <div class="margin"></div>
+        <div class="body">
+          <ul class="awards">
+            {
+              awards.map((a) => (
+                <li>
+                  <span class="aw-what">{a.what}</span>
+                  {a.note && <span class="aw-note">{a.note}</span>}
+                  {a.when && <span class="aw-when num">{a.when}</span>}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="pets" class="section" aria-labelledby="pets-title">
+      <div class="sheet section-head">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="pets-title">Off the keyboard</h2>
+          <p class="section-lede">Two good reasons to step away from the screen and come back with a clearer head.</p>
+        </div>
+      </div>
+      <div class="sheet entry">
+        <div class="margin"></div>
+        <div class="body pets">
+          <figure>
+            <Image src={cat} alt="Cà Phê, a white cat, sitting upright." widths={[240, 480]} sizes="240px" />
+            <figcaption>Cà Phê</figcaption>
+          </figure>
+          <figure>
+            <Image src={dog} alt="Bạc Xĩu, a small tan dog." widths={[320, 640]} sizes="320px" />
+            <figcaption>Bạc Xĩu</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact" aria-labelledby="contact-title">
+      <div class="sheet">
+        <div class="margin"></div>
+        <div class="body">
+          <h2 class="section-title" id="contact-title">Contact</h2>
+          <p class="section-lede">
+            I'm looking for AI engineering roles and research collaborations, especially on Vietnamese language
+            and vision. Email gets the fastest answer.
+          </p>
+          <p class="contact-mail">
+            <a href={`mailto:${person.email}`}>{person.email}</a>
+            <button type="button" class="btn copy-btn" data-copy={person.email}>Copy</button>
+          </p>
+          <p class="entry-links">
+            <a href={person.cv}>CV (PDF)</a>
+            <a href={person.github}>GitHub</a>
+            <a href={person.linkedin}>LinkedIn</a>
+            <a href={person.orcid}>ORCID</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    b.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.copy!);
+        b.textContent = "Copied";
+      } catch {
+        b.textContent = "Press Ctrl+C";
+      }
+      setTimeout(() => (b.textContent = "Copy"), 1800);
+    });
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-paper {
+    position: absolute;
+    inset: 0;
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  }
+  .hero-sheet {
+    padding-block: clamp(3rem, 8vw, 6rem) clamp(1rem, 3vw, 2rem);
+  }
+  .hero-sheet > .margin {
+    padding-top: 2.4rem;
+  }
+  .hero-lede {
+    margin-top: 2rem;
+    max-width: 36rem;
+    font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+    line-height: 1.45;
+    font-weight: 600;
+  }
+  .hero-now {
+    margin-top: 1rem;
+    max-width: 36rem;
+    color: var(--pencil);
+  }
+  .hero-now strong {
+    color: var(--text);
+  }
+  .hero-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .hero-links {
+    display: inline-flex;
+    gap: 1.25rem;
+    margin-left: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .shot {
+    padding: 0;
+    overflow: hidden;
+  }
+  .shot img {
+    width: 100%;
+    border-bottom: 1px solid var(--rule);
+  }
+  .shot .figure-caption {
+    margin: 0;
+    padding: 0.85rem 1.1rem;
+  }
+  .photo {
+    padding: 0;
+    overflow: hidden;
+  }
+  .photo img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+  .photo .figure-caption {
+    margin: 0;
+    padding: 0.85rem 1.1rem;
+  }
+
+  .points {
+    margin: 0.85rem 0 0;
+    padding-left: 1.1rem;
+    max-width: var(--measure);
+    display: grid;
+    gap: 0.4rem;
+  }
+  .points li::marker {
+    color: var(--red);
+  }
+
+  .plain-list {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1.75rem;
+    max-width: var(--measure);
+  }
+  .li-title {
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+  }
+  .li-when {
+    font-size: 0.875rem;
+    color: var(--pencil);
+    margin: 0.2rem 0 0.4rem;
+  }
+
+  .awards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 48rem;
+  }
+  .awards li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 1.5rem;
+    padding-block: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .awards li:first-child {
+    border-top: 1px solid var(--rule);
+  }
+  .aw-what {
+    font-weight: 600;
+  }
+  .aw-note {
+    grid-row: 2;
+    font-size: 0.9375rem;
+    color: var(--pencil);
+  }
+  .aw-when {
+    grid-column: 2;
+    grid-row: 1;
+    color: var(--pencil);
+  }
+
+  .pets {
+    display: flex;
+    align-items: flex-end;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .pets figure {
+    margin: 0;
+  }
+  .pets img {
+    height: 15rem;
+    width: auto;
+    object-fit: contain;
+  }
+  .pets figcaption {
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+
+  .contact {
+    padding-bottom: 3rem;
+  }
+  .contact-mail {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  .contact-mail a {
+    font-size: clamp(1.5rem, 4.4vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-decoration-thickness: 2px;
+    overflow-wrap: anywhere;
+  }
+  .copy-btn {
+    min-height: 40px;
+  }
+
+  @media (max-width: 760px) {
+    .hero-sheet > .margin {
+      padding-top: 0;
+    }
+    .hero-links {
+      margin-left: 0;
+      width: 100%;
+    }
+    .pets img {
+      height: 11rem;
+    }
+  }
+</style>

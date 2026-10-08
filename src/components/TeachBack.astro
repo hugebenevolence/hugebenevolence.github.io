@@ -1,0 +1,161 @@
+---
+// Two real golden-set turns from Kẻ Độc Hành (eval/results/run-20260918-1722.md).
+import { teachBack } from "../data/profile";
+const data = JSON.stringify(teachBack);
+---
+
+<div class="figure teach" data-teach={data}>
+  <div class="seg" role="group" aria-label="Golden-set case">
+    {
+      teachBack.map((c, i) => (
+        <button type="button" data-case={i} aria-pressed={i === 0 ? "true" : "false"}>
+          {c.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <ol class="tb-chat" aria-live="polite" data-chat>
+    <li class="tb-msg is-learner">
+      <span class="tb-who">Learner</span>
+      <p lang="vi" data-learner>{teachBack[0].learner}</p>
+      <p class="tb-en" data-learner-en>{teachBack[0].learnerEn}</p>
+    </li>
+    <li class="tb-typing" aria-hidden="true" hidden data-typing><span></span><span></span><span></span></li>
+    <li class="tb-msg is-student" data-student-msg>
+      <span class="tb-who">AI student <span class="tb-verdict" data-verdict>{teachBack[0].verdict}</span></span>
+      <p lang="vi" data-student>{teachBack[0].student}</p>
+      <p class="tb-en" data-student-en>{teachBack[0].studentEn}</p>
+    </li>
+  </ol>
+  <p class="figure-caption">
+    Cases N02 and N01 from the golden set, graded by gpt-5-mini on real providers. The learner's words are the
+    test input; the student's reply is the model's output, unedited. English glosses added for this page.
+  </p>
+</div>
+
+<script>
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  for (const root of document.querySelectorAll<HTMLElement>("[data-teach]")) {
+    const cases = JSON.parse(root.dataset.teach!);
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-case]")];
+    const q = (s: string) => root.querySelector<HTMLElement>(s)!;
+    const typing = q("[data-typing]");
+    const studentMsg = q("[data-student-msg]");
+    let timer = 0;
+    const show = (i: number) => {
+      const c = cases[i];
+      clearTimeout(timer);
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.case) === i)));
+      q("[data-learner]").textContent = c.learner;
+      q("[data-learner-en]").textContent = c.learnerEn;
+      q("[data-student]").textContent = c.student;
+      q("[data-student-en]").textContent = c.studentEn;
+      q("[data-verdict]").textContent = c.verdict;
+      root.dataset.verdict = c.verdict;
+      if (reduce) return;
+      studentMsg.hidden = true;
+      typing.hidden = false;
+      timer = window.setTimeout(() => {
+        typing.hidden = true;
+        studentMsg.hidden = false;
+      }, 900);
+    };
+    buttons.forEach((b) => b.addEventListener("click", () => show(Number(b.dataset.case))));
+    root.dataset.verdict = cases[0].verdict;
+  }
+</script>
+
+<style>
+  .tb-chat {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .tb-msg {
+    max-width: 34rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    animation: tb-in 0.3s ease-out;
+  }
+  .tb-msg p[lang="vi"] {
+    font-size: 1.0625rem;
+  }
+  .is-learner {
+    justify-self: end;
+    background: var(--ink-soft);
+    border-bottom-right-radius: 2px;
+  }
+  .is-student {
+    justify-self: start;
+    border: 1.5px solid var(--rule);
+    border-bottom-left-radius: 2px;
+  }
+  [data-verdict="incomplete"] .is-student {
+    border-color: var(--red);
+  }
+  .tb-who {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--pencil);
+    margin-bottom: 0.3rem;
+  }
+  .tb-verdict {
+    padding: 0.05rem 0.45rem;
+    border-radius: 3px;
+    background: var(--ink-soft);
+    color: var(--ink);
+  }
+  [data-verdict="incomplete"] .tb-verdict {
+    background: var(--red-soft);
+    color: var(--red);
+  }
+  .tb-en {
+    margin-top: 0.35rem;
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--pencil);
+  }
+  .tb-typing {
+    display: flex;
+    gap: 5px;
+    padding: 0.9rem 1rem;
+  }
+  .tb-typing[hidden] {
+    display: none;
+  }
+  .tb-typing span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pencil);
+    animation: tb-dot 0.9s infinite ease-in-out;
+  }
+  .tb-typing span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .tb-typing span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  @keyframes tb-dot {
+    0%,
+    80%,
+    100% {
+      opacity: 0.25;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+  @keyframes tb-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+</style>

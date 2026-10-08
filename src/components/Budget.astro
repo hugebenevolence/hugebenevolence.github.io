@@ -1,0 +1,133 @@
+---
+// ICISN: which teacher budget makes the best student? Numbers from the LLaMA-OSS README
+// (Llama 3.2 3B, SFT on curated traces then GRPO, 0-shot).
+import { cotResults as R } from "../data/profile";
+
+const data = JSON.stringify(R);
+const scaleMin = 0.3;
+const scaleMax = 0.85;
+const pct = (v: number) => ((v - scaleMin) / (scaleMax - scaleMin)) * 100;
+const benches = [
+  { key: "gsm8k", label: "GSM8K" },
+  { key: "math500", label: "MATH500" },
+] as const;
+---
+
+<div class="figure budget" data-budget={data} data-min={scaleMin} data-max={scaleMax}>
+  <p class="bd-q">Teacher reasoning budget used to write the training traces</p>
+  <div class="seg" role="group" aria-label="Teacher budget">
+    <button type="button" data-b="low" aria-pressed="true">Low</button>
+    <button type="button" data-b="medium" aria-pressed="false">Medium</button>
+    <button type="button" data-b="high" aria-pressed="false">High</button>
+  </div>
+
+  <ul class="bd-rows">
+    {
+      benches.map((b) => (
+        <li class="bd-row" data-bench={b.key}>
+          <span class="bd-name">{b.label}</span>
+          <span class="bd-meter">
+            <span class="bd-fill" style={`width:${pct(R.grpo.low[b.key])}%`} />
+            <span class="bd-base" style={`left:${pct(R.baseline[b.key])}%`} title="Llama 3.2 3B before distillation" />
+          </span>
+          <span class="bd-val num" data-val>
+            {R.grpo.low[b.key].toFixed(4)}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="bd-note" aria-live="polite" data-note></p>
+  <p class="figure-caption">
+    Llama 3.2 3B after SFT and GRPO, zero-shot accuracy. The tick marks the same model before distillation:
+    GSM8K {R.baseline.gsm8k.toFixed(4)}, MATH500 {R.baseline.math500.toFixed(4)}.
+  </p>
+</div>
+
+<script>
+  type B = "low" | "medium" | "high";
+  for (const root of document.querySelectorAll<HTMLElement>("[data-budget]")) {
+    const R = JSON.parse(root.dataset.budget!);
+    const min = Number(root.dataset.min);
+    const max = Number(root.dataset.max);
+    const pct = (v: number) => ((v - min) / (max - min)) * 100;
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-b]")];
+    const note = root.querySelector<HTMLElement>("[data-note]")!;
+    const set = (b: B) => {
+      buttons.forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.b === b)));
+      root.dataset.level = b;
+      for (const row of root.querySelectorAll<HTMLElement>("[data-bench]")) {
+        const k = row.dataset.bench!;
+        const v = R.grpo[b][k];
+        row.querySelector<HTMLElement>(".bd-fill")!.style.width = `${pct(v)}%`;
+        row.querySelector<HTMLElement>("[data-val]")!.textContent = v.toFixed(4);
+      }
+      const g = R.grpo[b].gsm8k - R.baseline.gsm8k;
+      const m = R.grpo[b].math500 - R.baseline.math500;
+      const pts = (x: number) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(1)} points`;
+      note.textContent =
+        `${pts(g)} on GSM8K and ${pts(m)} on MATH500 over the undistilled model.` +
+        (b === "low" ? " The shortest traces gave the best student on both." : "");
+    };
+    buttons.forEach((x) => x.addEventListener("click", () => set(x.dataset.b as B)));
+    set("low");
+  }
+</script>
+
+<style>
+  .bd-q {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .bd-rows {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .bd-row {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr) 4.5rem;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .bd-name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .bd-meter {
+    position: relative;
+    height: 1.75rem;
+    border-radius: 3px;
+    background-image: linear-gradient(to right, var(--rule) 1px, transparent 1px);
+    background-size: 10% 100%;
+    border: 1px solid var(--rule);
+  }
+  .bd-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--ink);
+    transition: width 0.5s cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  .bd-base {
+    position: absolute;
+    top: -6px;
+    bottom: -6px;
+    width: 3px;
+    margin-left: -1.5px;
+    background: var(--red);
+    border-radius: 2px;
+  }
+  .bd-val {
+    font-family: var(--mono);
+    font-size: 1.0625rem;
+    text-align: right;
+  }
+  .bd-note {
+    margin-top: 1rem;
+    min-height: 3.2em;
+    font-size: 1.0625rem;
+  }
+</style>
