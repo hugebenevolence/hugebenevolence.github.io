@@ -43,7 +43,7 @@ const shots: Record<string, ShowcaseItem[]> = {
   smile: smileShots,
 };
 const screens = shots[item.slug];
-const back = item.kind === "research" ? "research" : item.kind === "project" ? "projects" : "work";
+const back = item.slug;
 const meta = [
   ["Role", item.role],
   [item.kind === "research" ? "Venue" : "Context", item.venue ?? item.context],
@@ -54,7 +54,7 @@ const meta = [
 
 <Base title={`${item.name}, ${person.name}`} description={item.tagline}>
   <article class="wrap case">
-    <a class="back" href={`/#${back}`}>Back to all work</a>
+    <a class="back" href={`/#${back}`}>Back to the CV</a>
 
     <header class="case-head">
       {item.status && <span class="badge">{item.status}</span>}

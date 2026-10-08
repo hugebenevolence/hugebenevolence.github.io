@@ -1,0 +1,145 @@
+---
+import { Image } from "astro:assets";
+import type { Entry } from "../data/cv";
+
+interface Props {
+  e: Entry;
+}
+const { e } = Astro.props;
+---
+
+<article class={`cv-entry ${e.image ? "has-thumb" : ""}`} id={e.id}>
+  <div class="cv-main">
+    <div class="cv-line">
+      <h3 class="cv-title">{e.title}</h3>
+      <span class="cv-when num">
+        {e.badge && <span class="badge">{e.badge}</span>}
+        {e.when}
+      </span>
+    </div>
+    {
+      (e.subtitle || e.where) && (
+        <div class="cv-line cv-sub">
+          <span>{e.subtitle}</span>
+          {e.where && <span class="cv-where">{e.where}</span>}
+        </div>
+      )
+    }
+    {
+      e.tech && (
+        <ul class="tags cv-tech" aria-label="Technologies">
+          {e.tech.map((t) => (
+            <li>{t}</li>
+          ))}
+        </ul>
+      )
+    }
+    <ul class="cv-points">
+      {e.points.map((p) => <li>{p}</li>)}
+    </ul>
+    {
+      e.links && e.links.length > 0 && (
+        <p class="link-row cv-links">
+          {e.links.map((l) => (
+            <a href={l.href}>{l.label}</a>
+          ))}
+        </p>
+      )
+    }
+  </div>
+  {
+    e.image && (
+      <a class="cv-thumb" href={e.image.href ?? e.image.src.src} aria-label={`Open ${e.title}`}>
+        <Image src={e.image.src} alt={e.image.alt} widths={[240, 400, 640]} sizes="200px" quality={90} />
+      </a>
+    )
+  }
+</article>
+
+<style>
+  .cv-entry {
+    padding-block: 1.25rem;
+  }
+  .cv-entry + .cv-entry {
+    border-top: 1px dashed var(--border);
+  }
+  .cv-entry.has-thumb {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 200px;
+    gap: 1.75rem;
+    align-items: start;
+  }
+  .cv-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.4rem 1.5rem;
+    flex-wrap: wrap;
+  }
+  .cv-title {
+    font-size: 1.0625rem;
+    letter-spacing: -0.005em;
+  }
+  .cv-when {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .cv-sub {
+    margin-top: 0.15rem;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+  .cv-where {
+    white-space: nowrap;
+  }
+  .cv-tech {
+    margin-top: 0.6rem;
+  }
+  .cv-points {
+    margin-top: 0.6rem;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.3rem;
+    font-size: 0.96875rem;
+  }
+  .cv-points li::marker {
+    color: var(--muted);
+  }
+  .cv-links {
+    margin-top: 0.6rem;
+    font-size: 0.875rem;
+  }
+  .cv-thumb {
+    display: block;
+    margin-top: 0.2rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    transition: border-color 0.15s;
+  }
+  .cv-thumb:hover {
+    border-color: var(--border-strong);
+  }
+  .cv-thumb :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top center;
+  }
+  @media (max-width: 720px) {
+    .cv-entry.has-thumb {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.9rem;
+    }
+    .cv-thumb {
+      max-width: 280px;
+      margin-top: 0;
+    }
+  }
+</style>

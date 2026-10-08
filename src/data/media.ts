@@ -22,7 +22,7 @@ export type ShowcaseItem = {
 export const litreviewShots: ShowcaseItem[] = [
   {
     label: "Replay of a run",
-    video: { src: "/media/litreview-replay.mp4", poster: "/media/litreview-replay.jpg", width: 1150, height: 700 },
+    video: { src: "/media/litreview-replay.mp4", poster: "/media/litreview-replay.jpg", width: 1600, height: 1072 },
     alt: "LitReview's process view replaying a finished review: three criteria, ten search queries adding papers, 615 candidates screened into kept and rejected, full-text reading, and 20 papers selected.",
     caption: "The process view replaying a real review at twice the speed: 3 criteria, 615 papers found, 59 kept after screening, 30 read in full, 20 selected. The whole run took 16 minutes 49 seconds and cost $0.30.",
   },
