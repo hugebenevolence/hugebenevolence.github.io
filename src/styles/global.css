@@ -334,7 +334,8 @@ p {
 .seg button + button {
   border-left: 1.5px solid var(--ink);
 }
-.seg button[aria-pressed="true"] {
+.seg button[aria-pressed="true"],
+.seg button[aria-selected="true"] {
   background: var(--ink);
   color: var(--on-ink);
 }

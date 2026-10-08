@@ -26,6 +26,12 @@ Project pages under `/work/<slug>/` are generated for every entry in `work` with
 | RAG strategy scores | `RAG-Enhancement/apps/web/src/lib/strategy-benchmarks.ts` |
 | Teach-back dialogue | `K4-3A-E403-Ke_Doc_Hanh/eval/results/run-20260918-1722.md` |
 | Kẻ Độc Hành screenshots | the app running locally with `USE_MOCKS=true` and a 3-page demo deck |
+| LitReview clip and screens | the P-046 app running locally on a finished review (GNN / MoleculeNet); the repo check is the free quick check on `karpathy/nanoGPT` |
+| S.M.I.L.E clip and screens | the capstone stack running locally with its own migrations and seed data; VNPay in mock mode |
+| RAG Lab screens | the Next.js workbench with the project's own e2e API fixtures and notebook results |
+| PawCal banner | provided by the PawCal team |
+
+Clips are recorded with a CDP screencast and encoded to H.264 at twice the real speed.
 
 To regenerate the tokenizer data:
 

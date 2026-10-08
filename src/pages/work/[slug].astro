@@ -8,11 +8,11 @@ import VlmStages from "../../components/VlmStages.astro";
 import TeachBack from "../../components/TeachBack.astro";
 import PaymentSim from "../../components/PaymentSim.astro";
 import RagChart from "../../components/RagChart.astro";
+import Showcase from "../../components/Showcase.astro";
+import { litreviewShots, kdhShots, ragShots, smileShots, type ShowcaseItem } from "../../data/media";
 import { person, work, vivqaX, cotResults, type Work } from "../../data/profile";
 
 import vivqaFigure from "../../assets/vivqa-figure.png";
-import kdhLanding from "../../assets/shots/kdh-landing.png";
-import kdhSession from "../../assets/shots/kdh-session.png";
 
 export function getStaticPaths() {
   const pages = work.filter((w) => w.page);
@@ -38,6 +38,8 @@ const widgets: Record<string, any> = {
   "rag-lab": RagChart,
 };
 const Widget = widgets[item.slug];
+const shots: Record<string, ShowcaseItem[]> = { litreview: litreviewShots, "ke-doc-hanh": kdhShots, "rag-lab": ragShots, smile: smileShots };
+const screens = shots[item.slug];
 const backSection = item.kind === "research" ? "research" : item.kind === "scratch" ? "models" : item.kind === "more" ? "more" : "work";
 ---
 
@@ -76,6 +78,19 @@ const backSection = item.kind === "research" ? "research" : item.kind === "scrat
         }
       </div>
     </header>
+
+    {
+      screens && (
+        <section class="sheet case-sec">
+          <div class="margin">
+            <span class="m-item m-strong">Screens</span>
+          </div>
+          <div class="body">
+            <Showcase label={`${item.short} screens`} items={screens} />
+          </div>
+        </section>
+      )
+    }
 
     {
       item.body.length > 0 && (
@@ -198,28 +213,6 @@ const backSection = item.kind === "research" ? "research" : item.kind === "scrat
                 </tbody>
               </table>
             </div>
-          </div>
-        </section>
-      )
-    }
-
-    {
-      item.slug === "ke-doc-hanh" && (
-        <section class="sheet case-sec">
-          <div class="margin">
-            <span class="m-item m-strong">Screens</span>
-            <br />
-            <span class="m-item">Mock mode, demo deck</span>
-          </div>
-          <div class="body shots">
-            <figure class="figure case-fig shot">
-              <Image src={kdhLanding} alt="Kẻ Độc Hành landing page with the headline 'Giảng được, mới là hiểu.' (If you can teach it, you understand it.)" widths={[720, 1200, 1800]} sizes="(max-width: 900px) 100vw, 52rem" />
-              <figcaption class="figure-caption">Landing page: “Giảng được, mới là hiểu”, if you can teach it, you understand it.</figcaption>
-            </figure>
-            <figure class="figure case-fig shot">
-              <Image src={kdhSession} alt="A teaching session: the AI student's opening request, the learner's explanation, and the AI's follow-up question, with the slide's source text covered." widths={[720, 1200, 1800]} sizes="(max-width: 900px) 100vw, 52rem" />
-              <figcaption class="figure-caption">A session in progress. The slide region being taught is covered; the student asks a follow-up.</figcaption>
-            </figure>
           </div>
         </section>
       )

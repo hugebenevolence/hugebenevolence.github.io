@@ -8,12 +8,11 @@ import Budget from "../components/Budget.astro";
 import Tokenizer from "../components/Tokenizer.astro";
 import VlmStages from "../components/VlmStages.astro";
 import TeachBack from "../components/TeachBack.astro";
-import PaymentSim from "../components/PaymentSim.astro";
-import Pipeline from "../components/Pipeline.astro";
-import RagChart from "../components/RagChart.astro";
+import Showcase from "../components/Showcase.astro";
 import { person, experience, education, community, awards, workBySlug } from "../data/profile";
 
-import kdhSession from "../assets/shots/kdh-session.png";
+import pawcal from "../assets/pawcal-banner.png";
+import { litreviewShots, kdhShots, ragShots, smileShots } from "../data/media";
 import codeRace from "../assets/code-race.jpg";
 import cat from "../assets/pet-cat.png";
 import dog from "../assets/pet-dog.png";
@@ -95,28 +94,29 @@ import dog from "../assets/pet-dog.png";
           <p class="section-lede">Software with users, money or a deadline attached.</p>
         </div>
       </div>
+      <WorkEntry item={workBySlug("litreview")} ring="0.326">
+        <Showcase label="LitReview screens" items={litreviewShots} />
+      </WorkEntry>
       <WorkEntry item={workBySlug("ke-doc-hanh")} ring="$5">
-        <figure class="figure shot">
-          <Image
-            src={kdhSession}
-            alt="Kẻ Độc Hành session: the AI student asks the learner to explain 'Token là gì?', the learner's explanation, and the AI's follow-up question, with the slide's source text covered."
-            widths={[720, 1200, 1800]}
-            sizes="(max-width: 900px) 100vw, 52rem"
-          />
-          <figcaption class="figure-caption">
-            Running locally in mock mode with a demo deck. The part of the slide being explained stays covered
-            until the session ends.
-          </figcaption>
-        </figure>
+        <Showcase label="Kẻ Độc Hành screens" items={kdhShots} />
         <TeachBack />
       </WorkEntry>
       <WorkEntry item={workBySlug("smile")}>
-        <PaymentSim />
+        <Showcase label="S.M.I.L.E screens" items={smileShots} />
       </WorkEntry>
-      <WorkEntry item={workBySlug("paper-reproduction-agents")} full>
-        <Pipeline />
+      <WorkEntry item={workBySlug("pawcal")}>
+        <figure class="figure shot">
+          <Image
+            src={pawcal}
+            alt="PawCal banner: 'Hệ thống nhắc lịch toàn diện dành cho thú cưng', with the PawCal landing page on a laptop and a Zalo reminder message on a phone."
+            widths={[720, 1200, 1640]}
+            sizes="(max-width: 900px) 100vw, 52rem"
+          />
+          <figcaption class="figure-caption">
+            The landing page and a Zalo reminder: “Xin chào chị Ngọc, phòng khám xin nhắc: bé cún Sữa có lịch tiêm ngừa vào ngày 10/10 lúc 15h.”
+          </figcaption>
+        </figure>
       </WorkEntry>
-      <WorkEntry item={workBySlug("pawcal")} />
     </section>
 
     <section id="more" class="section" aria-labelledby="more-title">
@@ -127,7 +127,7 @@ import dog from "../assets/pet-dog.png";
         </div>
       </div>
       <WorkEntry item={workBySlug("rag-lab")}>
-        <RagChart />
+        <Showcase label="RAG Lab screens" items={ragShots} />
       </WorkEntry>
       <WorkEntry item={workBySlug("brainify")} />
     </section>
