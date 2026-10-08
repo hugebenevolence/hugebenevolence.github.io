@@ -3,8 +3,9 @@
 export const person = {
   name: "Trần Đại Nhân",
   latinName: "Tran Dai Nhan",
-  role: "AI engineer",
-  city: "Hà Nội",
+  role: "AI Engineer",
+  headline: "Applied NLP, LLM systems and backend services",
+  city: "Hà Nội, Vietnam",
   email: "nhantd.dev@gmail.com",
   github: "https://github.com/hugebenevolence",
   linkedin: "https://www.linkedin.com/in/nhantran8104/",
@@ -83,6 +84,14 @@ export const community = [
   },
 ];
 
+export const skills = [
+  { area: "Languages", items: "Python, TypeScript, Java, C#, SQL, Bash" },
+  { area: "LLMs and ML", items: "PyTorch, Transformers, vLLM, Unsloth, LLaMA-Factory, MS-SWIFT, LangGraph, LangChain, Qdrant, Hugging Face" },
+  { area: "Practice", items: "Fine-tuning (SFT, GRPO), distillation, RAG and retrieval evaluation, agentic workflows, multimodal VQA, vision-language pretraining, inference cost optimisation" },
+  { area: "Backend", items: "FastAPI, NestJS, Spring Boot, .NET, REST, microservices, concurrency control, PostgreSQL, Redis" },
+  { area: "Infrastructure", items: "AWS (EC2, S3, IAM), Docker, GitHub Actions, Nginx, Cloudflare, Vercel, Linux" },
+];
+
 export const awards = [
   { what: "2nd place, Mini AI Hackathon, Vingroup AI Talent Program", when: "2026", note: "Kẻ Độc Hành" },
   { what: "Top 2, FPT Cần Thơ AI Student Olympiad", when: "2026" },
@@ -93,41 +102,137 @@ export const awards = [
 
 // ---------- Work ----------
 
-export type WorkKind = "research" | "scratch" | "product" | "more";
+export type WorkKind = "featured" | "research" | "project";
+
+export type Fact = { value: string; label: string };
 
 export type Work = {
   slug: string;
   kind: WorkKind;
+  /** Short product or paper name */
+  name: string;
+  /** Full title, used as the case-study heading */
   title: string;
-  short: string;
-  margin: string[];
-  /** Bold first margin line */
-  marginStrong?: string;
+  tagline: string;
+  role: string;
+  when: string;
+  context?: string;
+  team?: string;
   lead: string;
   result?: string;
+  facts?: Fact[];
   body: string[];
   did?: string[];
-  stack: string;
+  stack: string[];
   links: Link[];
   /** Has its own page under /work/<slug>/ */
   page: boolean;
   authors?: string;
   venue?: string;
+  status?: string;
   bibtex?: string;
 };
 
 export const work: Work[] = [
   {
+    slug: "litreview",
+    kind: "featured",
+    name: "LitReview",
+    title: "LitReview: literature reviews where every claim points to a checked quote",
+    tagline: "A literature review agent whose citations are verified against the papers' full text.",
+    role: "Team lead",
+    when: "Sep 2026 – now",
+    context: "Vingroup AI Talent Program",
+    team: "4 engineers",
+    lead: "Describe a research question in plain words. LitReview turns it into weighted criteria you approve, searches Semantic Scholar, OpenAlex and arXiv, screens every candidate, reads the full text of the strongest papers and writes the review. Every citation points to a verbatim quote that code has found in the paper.",
+    result: "Recall against human-labelled answers: 0.326 on RealScholarQuery and 0.197 on SPARBench, against 0.127 and 0.134 for the Asta Paper Finder baseline. Zero fabricated citations in every run.",
+    facts: [
+      { value: "2.6×", label: "the recall of Asta Paper Finder on RealScholarQuery" },
+      { value: "0", label: "fabricated citations across evaluation runs" },
+      { value: "89%", label: "test coverage across 265 tests" },
+    ],
+    body: [
+      "Researchers miss papers because the same idea goes by different names, and general-purpose AI tools invent references. LitReview is a fixed LangGraph pipeline with two stops for a person: approve the criteria, with a time and cost estimate, before any money is spent on search, and approve the paper set before anything is written.",
+      "Agents only work where their output can be checked. A full-text reader quotes evidence for each criterion; code confirms each quote exists verbatim in the paper and downgrades the verdict when it doesn't, and the final paper set is chosen by code from those verdicts. A second stage audits a paper's GitHub repository for reproducibility (missing files, dead data links, unpinned dependencies) with file and line evidence, without writing or running the code.",
+      "I lead the team: I set the architecture, own the search pipeline, and redesigned the system for production on AWS: FastAPI with idempotent paid endpoints, a SQLite run queue and a separate worker, stop and resume from checkpoints, per-account credits and OpenTelemetry traces.",
+    ],
+    did: [
+      "Search fans out into nine aspect queries across Semantic Scholar, OpenAlex and arXiv, expands one hop through citations, and runs a second round written by an exploration agent from what is still missing.",
+      "92.6–95.1% of the reader's quotes match the paper verbatim; the rest are caught by code and never used as evidence.",
+      "Report sentences fully supported by a quote rose from 0.222 to 0.853 on the RealScholarQuery dev set after the support check.",
+      "265 tests at 89% coverage. Paid requests carry an Idempotency-Key, so a retry never pays twice.",
+    ],
+    stack: ["LangGraph", "FastAPI", "OpenAI", "Semantic Scholar", "OpenAlex", "SQLite", "React 19", "OpenTelemetry", "Docker", "AWS EC2"],
+    links: [],
+    page: true,
+  },
+  {
+    slug: "smile",
+    kind: "featured",
+    name: "S.M.I.L.E",
+    title: "S.M.I.L.E: booking and payments for a dental clinic network",
+    tagline: "Practice management for a multi-clinic dental network.",
+    role: "Owner of booking, payments and identity",
+    when: "2026",
+    context: "Capstone, FPT University",
+    lead: "A practice management platform for a multi-clinic dental network: four NestJS services on Bun, one of them the API gateway, five PostgreSQL databases, Redis and a Next.js front end. I owned the parts where a bug costs a patient money or a seat.",
+    facts: [
+      { value: "4", label: "NestJS services behind one gateway" },
+      { value: "5", label: "PostgreSQL databases, one per bounded context" },
+      { value: "145", label: "test files across the NestJS services and the front end" },
+    ],
+    body: [
+      "Booking: two patients cannot claim the same doctor's slot, even with simultaneous requests, because the check happens in the database, not in application code. Availability updates in the UI in real time.",
+      "Payments: VNPay by QR or redirect, callback handling, refunds with an approval workflow, and payment history in the service's own database. A Redis-backed idempotency key means a retried request never charges twice; the VNPay callback is signature-verified and replay-guarded.",
+      "Identity: a standalone Python OCR service reads Vietnamese citizen ID cards, and the IAM service uses it to gate who may book. I also shipped a LangGraph booking assistant with Qdrant retrieval for clinic policy questions.",
+    ],
+    stack: ["NestJS", "Bun", "TypeORM", "PostgreSQL", "Redis", "VNPay", "Next.js", "LangGraph", "Qdrant", "Python OCR"],
+    links: [{ label: "Source code", href: "https://github.com/hugebenevolence/Smart-Medical-Intelligent-Ledger-for-E-health-S.M.I.L.E-" }],
+    page: true,
+  },
+  {
+    slug: "ke-doc-hanh",
+    kind: "featured",
+    name: "Kẻ Độc Hành",
+    title: "Kẻ Độc Hành: you teach, the AI asks why",
+    tagline: "A voice tutor that makes the learner teach the material back.",
+    role: "Tech lead",
+    when: "Sep 2026",
+    context: "Mini AI Hackathon, Vingroup AI Talent Program",
+    team: "4 people",
+    lead: "A learner picks part of a lecture slide and explains it out loud. The slide is covered, and an AI playing the student asks back wherever the explanation is thin, vague or wrong. The session only ends when the explanation holds up against the source.",
+    result: "Built in 47.5 hours on a $5 API budget: an estimated $0.008 per session, and 23 of 26 golden-set cases passing the automatic checks on real providers.",
+    facts: [
+      { value: "2nd", label: "place at the Vingroup AI Talent Program hackathon" },
+      { value: "23 / 26", label: "golden-set cases passing on real providers" },
+      { value: "$0.008", label: "estimated API cost per session" },
+    ],
+    body: [
+      "We started from the course's own tutor logs. Across 13,494 turns from 1,617 learners, the tutor explained 89.9% of the time and asked a probing question 0.2% of the time. When learners offered their own understanding to be checked, it lectured them again 87% of the time.",
+      "I owned the technical side: a deterministic LangGraph workflow rather than a ReAct loop, a cheap talker model that answers within about 400 ms while the grader thinks in parallel, string-matching checks that catch a learner reading the slide back before any LLM is called, prompts ordered so the stable prefix stays cached, the React frontend and the deployment.",
+    ],
+    did: [
+      "Talker (gpt-5-nano) and reasoner (gpt-5-mini) run in parallel; the talker is forbidden from judging, because when it speaks nobody knows the verdict yet.",
+      "Ports and adapters: speech, TTS, LLM and slide sources are swappable, and the whole flow runs on mocks without spending credit.",
+      "A 26-case golden set with automatic checks, re-run after every prompt change.",
+    ],
+    stack: ["LangGraph", "FastAPI", "WebSocket audio", "OpenAI", "Speechmatics", "React", "PyMuPDF"],
+    links: [{ label: "Source code and spec", href: "https://github.com/hugebenevolence/K4-3A-E403-Ke_Doc_Hanh" }],
+    page: true,
+  },
+  {
     slug: "adaptive-reasoning-vqa",
     kind: "research",
+    name: "Adaptive reasoning for Vietnamese VQA",
     title: "Difficulty-aware adaptive reasoning for Vietnamese VQA with GPT-OSS",
-    short: "Adaptive reasoning for Vietnamese VQA",
-    marginStrong: "AICI 2026",
-    margin: ["Accepted", "Springer chapter", "First author"],
+    tagline: "Spend reasoning compute only on the questions that need it.",
+    role: "First author",
+    when: "2026",
     authors: "Dai-Nhan Tran, Phuc-Thinh Nguyen, Tue-Anh Vu, Bao Do, Hai-Au Trinh, Anh-Khoi Nguyen",
     venue: "AICI 2026, Springer book chapter",
+    status: "Accepted",
     lead: "Most questions about a photo don't need a model to think hard. A dense caption from Gemini 2.5 describes the image, CLIP scores how well that caption matches the picture, and GPT-OSS gets low, medium or high reasoning effort accordingly.",
-    result: "On ViVQA-X the adaptive mode finished in 815 s instead of 3,317 s, and scored best on BLEU-4, ROUGE-L and METEOR.",
+    result: "On ViVQA-X the adaptive mode finished in 815 s instead of 3,317 s, a 75% cut, and scored best on BLEU-4, ROUGE-L and METEOR.",
     body: [
       "Vietnamese VQA models either answer fast and shallow or reason at length on every question, including the ones where a good caption already contains the answer. The cost of always reasoning hard is real: on ViVQA-X it takes almost twelve times the wall-clock time of the low-effort setting.",
       "I designed the framework end to end: dense captioning, a CLIP similarity router, multi-model inference across GPT-OSS, Qwen3 and DeepSeek with vLLM and Unsloth, batch processing with resumable jobs, and the automated evaluation.",
@@ -137,8 +242,8 @@ export const work: Work[] = [
       "Inference across GPT-OSS, Qwen3 and DeepSeek on vLLM, with periodic checkpoints so long jobs resume after interruption.",
       "Evaluation on ViVQA-X and OpenViVQA with BLEU, ROUGE-L, METEOR, CIDEr, SPICE, BERTScore, FLOPs and wall-clock time.",
     ],
-    stack: "PyTorch, Transformers, vLLM, Unsloth, CLIP, Gemini 2.5",
-    links: [{ label: "Code on GitHub", href: "https://github.com/hugebenevolence/ViVQA-GPT-OSS-DRA" }],
+    stack: ["PyTorch", "Transformers", "vLLM", "Unsloth", "CLIP", "Gemini 2.5"],
+    links: [{ label: "Code", href: "https://github.com/hugebenevolence/ViVQA-GPT-OSS-DRA" }],
     page: true,
     bibtex: `@inproceedings{tran2026adaptive,
   title     = {Difficulty-Aware Adaptive Reasoning for Vietnamese VQA with GPT-OSS},
@@ -152,20 +257,22 @@ export const work: Work[] = [
   {
     slug: "multi-mode-cot",
     kind: "research",
+    name: "Multi-mode CoT distillation",
     title: "Curating multi-mode chain of thought for efficient math reasoning with GPT-OSS",
-    short: "Multi-mode CoT distillation",
-    marginStrong: "ICISN 2026",
-    margin: ["Accepted", "Co-author"],
+    tagline: "Fewer, cleaner reasoning traces make a better student model.",
+    role: "Co-author",
+    when: "2026",
     authors: "Hai-Au Trinh, Tue-Anh Vu, Dai-Nhan Tran, Uyen Khoi-Minh Huynh, Anh-Khoi Nguyen",
     venue: "ICISN 2026",
+    status: "Accepted",
     lead: "We distilled math reasoning from a GPT-OSS teacher into Llama 3.2 3B. The teacher wrote solutions at low, medium and high reasoning budgets; we kept only traces with a verified final answer and a sensible length.",
     result: "The student trained on the shortest, low-budget traces came out best after GRPO: GSM8K 0.8006 and MATH500 0.4760 zero-shot, up from 0.7043 and 0.3960.",
     body: [
       "Distillation datasets are noisy: wrong answers with confident reasoning, and traces that ramble for pages. We bet on fewer, cleaner samples rather than more of them.",
       "I built the curation pipeline — generating multi-budget traces from the teacher, verifying final answers, filtering by length around the median — and ran the SFT and GRPO workflows on LLaMA-Factory and MS-SWIFT.",
     ],
-    stack: "LLaMA-Factory, MS-SWIFT, GPT-OSS, Llama 3.2 3B, SFT, GRPO",
-    links: [{ label: "Code on GitHub", href: "https://github.com/hugebenevolence/LLaMA-OSS" }],
+    stack: ["LLaMA-Factory", "MS-SWIFT", "GPT-OSS", "Llama 3.2 3B", "SFT", "GRPO"],
+    links: [{ label: "Code", href: "https://github.com/hugebenevolence/LLaMA-OSS" }],
     page: true,
     bibtex: `@inproceedings{trinh2026multimode,
   title     = {Curating Multi-Mode CoT for Efficient Math Reasoning with GPT-OSS},
@@ -178,137 +285,81 @@ export const work: Work[] = [
   },
   {
     slug: "vietnamese-gpt2",
-    kind: "scratch",
+    kind: "project",
+    name: "Vietnamese GPT-2",
     title: "Vietnamese GPT-2, pretrained from scratch",
-    short: "Vietnamese GPT-2",
-    marginStrong: "2026",
-    margin: ["Team project"],
+    tagline: "A Vietnamese tokenizer and GPT-2 trained from random initialization on 2.64B tokens.",
+    role: "Team project",
+    when: "2026",
+    context: "AI VIET NAM",
     lead: "GPT-2's English vocabulary shreds Vietnamese: every accented letter costs two or three byte-level tokens. We trained our own byte-level BPE tokenizer with the same 50,257-token budget, spent on Vietnamese.",
-    result: "On the sample sentences below, Vietnamese needs a quarter to a third of the tokens, so the same 1,024-token context holds roughly three times as much text.",
+    result: "On sample Vietnamese sentences it needs a quarter to a third of the tokens GPT-2 does, so the same 1,024-token context holds roughly three times as much text.",
     body: [
       "We curated and deduplicated a mix of news and Wikipedia into roughly 2.64B training tokens, pretrained GPT-2 from random initialization, then continued pretraining on a corpus of five-word quatrains as a controlled study of how far continued pretraining shifts style.",
       "The model ships as a Docker trainer with a FastAPI backend and a Next.js chat interface.",
     ],
-    stack: "PyTorch, Transformers, Hugging Face Tokenizers, FastAPI, Next.js, Docker",
-    links: [{ label: "Code on GitHub", href: "https://github.com/hugebenevolence/vietnamese-gpt2" }],
+    stack: ["PyTorch", "Transformers", "Tokenizers", "FastAPI", "Next.js", "Docker"],
+    links: [{ label: "Code", href: "https://github.com/hugebenevolence/vietnamese-gpt2" }],
     page: true,
   },
   {
     slug: "vietnamese-vlm",
-    kind: "scratch",
+    kind: "project",
+    name: "Vietnamese VLM",
     title: "A Vietnamese vision-language model, LLaVA style",
-    short: "Vietnamese VLM",
-    marginStrong: "2026",
-    margin: ["Team project"],
+    tagline: "SigLIP2 and Llama 3.2 1B joined by an MLP projector, trained in two stages.",
+    role: "Team project",
+    when: "2026",
+    context: "AI VIET NAM",
     lead: "SigLIP2 sees the image, a small MLP translates what it sees into the language model's embedding space, and Llama 3.2 1B answers in Vietnamese. Training happens in two stages, and what each stage is allowed to change is the whole design.",
     body: [
       "Stage 1 aligns modalities: the vision encoder and the language model stay frozen and only the projector learns, on Vietnamese COCO captions and UIT-OpenViIC. Stage 2 unfreezes the language model for visual instruction tuning on Vietnamese VQA data, plus tourism Q&A we crawled and generated with the OpenAI Batch API.",
       "Distributed training runs on Accelerate with token-weighted loss and checkpoint-and-resume, evaluated on KTVIC captioning and Vista conversation, with Streamlit demos for captioning and chat.",
     ],
-    stack: "SigLIP2, Llama 3.2 1B Instruct, PyTorch, Accelerate, Hugging Face",
-    links: [{ label: "Code on GitHub", href: "https://github.com/hugebenevolence/pretrain_vlm" }],
+    stack: ["SigLIP2", "Llama 3.2 1B", "PyTorch", "Accelerate", "Hugging Face"],
+    links: [{ label: "Code", href: "https://github.com/hugebenevolence/pretrain_vlm" }],
     page: true,
   },
   {
-    slug: "ke-doc-hanh",
-    kind: "product",
-    title: "Kẻ Độc Hành: you teach, the AI asks why",
-    short: "Kẻ Độc Hành",
-    marginStrong: "2nd place",
-    margin: ["Vingroup AI hackathon", "Sep 2026", "Tech lead"],
-    lead: "A learner picks part of a lecture slide and explains it out loud. The slide is covered, and an AI playing the student asks back wherever the explanation is thin, vague or wrong. The session only ends when the explanation holds up against the source.",
-    result: "Built in 47.5 hours on a $5 API budget: an estimated $0.008 per session, and 23 of 26 golden-set cases passing the automatic checks on real providers.",
-    body: [
-      "We started from the course's own tutor logs. Across 13,494 turns from 1,617 learners, the tutor explained 89.9% of the time and asked a probing question 0.2% of the time. When learners offered their own understanding to be checked, it lectured them again 87% of the time.",
-      "I owned the technical side: a deterministic LangGraph workflow rather than a ReAct loop, a cheap talker model that answers within about 400 ms while the grader thinks in parallel, string-matching checks that catch a learner reading the slide back before any LLM is called, prompts ordered so the stable prefix stays cached, the React frontend and the deployment.",
-    ],
-    did: [
-      "Talker (gpt-5-nano) and reasoner (gpt-5-mini) run in parallel; the talker is forbidden from judging, because when it speaks nobody knows the verdict yet.",
-      "Ports and adapters: speech, TTS, LLM and slide sources are swappable, and the whole flow runs on mocks without spending credit.",
-      "A 26-case golden set with automatic checks, re-run after every prompt change.",
-    ],
-    stack: "LangGraph, FastAPI, WebSocket audio, OpenAI, Speechmatics, React, Vite, PyMuPDF",
-    links: [{ label: "Code and spec on GitHub", href: "https://github.com/hugebenevolence/K4-3A-E403-Ke_Doc_Hanh" }],
-    page: true,
-  },
-  {
-    slug: "smile",
-    kind: "product",
-    title: "S.M.I.L.E: booking and payments for a dental clinic network",
-    short: "S.M.I.L.E",
-    marginStrong: "Capstone",
-    margin: ["2026", "Booking, payment and identity"],
-    lead: "A practice management platform for a multi-clinic dental network: four NestJS services on Bun, one of them the API gateway, five PostgreSQL databases, Redis and a Next.js front end. I owned the parts where a bug costs a patient money or a seat.",
-    body: [
-      "Booking: two patients cannot claim the same doctor's slot, even with simultaneous requests, because the check happens in the database, not in application code. Availability updates in the UI in real time.",
-      "Payments: VNPay by QR or redirect, callback handling, refunds with an approval workflow, and payment history in the service's own database. A Redis-backed idempotency key means a retried request never charges twice; the VNPay callback is signature-verified and replay-guarded.",
-      "Identity: a standalone Python OCR service reads Vietnamese citizen ID cards, and the IAM service uses it to gate who may book. I also shipped a LangGraph booking assistant with Qdrant retrieval for clinic policy questions.",
-    ],
-    stack: "NestJS, Bun, TypeORM, PostgreSQL, Redis, VNPay, LangGraph, Qdrant, FastAPI, Python OCR",
-    links: [{ label: "Code on GitHub", href: "https://github.com/hugebenevolence/Smart-Medical-Intelligent-Ledger-for-E-health-S.M.I.L.E-" }],
-    page: true,
-  },
-  {
-    slug: "litreview",
-    kind: "product",
-    title: "LitReview: a literature review where every claim points to a checked quote",
-    short: "LitReview",
-    marginStrong: "Now",
-    margin: ["Vingroup AI Talent Program", "Team lead, team of 4", "Private repository"],
-    lead: "Describe a research question in plain words. LitReview turns it into weighted criteria you approve, searches Semantic Scholar, OpenAlex and arXiv, screens every candidate, reads the full text of the strongest papers and writes the review. Every citation points to a verbatim quote that code has found in the paper.",
-    result: "Recall against human-labelled answers: 0.326 on RealScholarQuery and 0.197 on SPARBench, against 0.127 and 0.134 for the Asta Paper Finder baseline. Zero fabricated citations in every run.",
-    body: [
-      "Researchers miss papers because the same idea goes by different names, and general-purpose AI tools invent references. LitReview is a fixed LangGraph pipeline with two stops for a person: approve the criteria, with a time and cost estimate, before any money is spent on search, and approve the paper set before anything is written.",
-      "Agents only work where their output can be checked. A full-text reader quotes evidence for each criterion; code confirms each quote exists verbatim in the paper and downgrades the verdict when it doesn't, and the final paper set is chosen by code from those verdicts. A second stage audits a paper's GitHub repository for reproducibility (missing files, dead data links, unpinned dependencies) with file and line evidence, without writing or running the code.",
-      "I lead the team: I set the architecture, own the search pipeline, and redesigned the system for production on AWS: FastAPI with idempotent paid endpoints, a SQLite run queue and a separate worker, stop and resume from checkpoints, per-account credits and OpenTelemetry traces.",
-    ],
-    did: [
-      "Search fans out into nine aspect queries across Semantic Scholar, OpenAlex and arXiv, expands one hop through citations, and runs a second round written by an exploration agent from what is still missing.",
-      "92.6–95.1% of the reader's quotes match the paper verbatim; the rest are caught by code and never used as evidence.",
-      "Report sentences fully supported by a quote rose from 0.222 to 0.853 on the RealScholarQuery dev set after the support check.",
-      "265 tests at 89% coverage. Paid requests carry an Idempotency-Key, so a retry never pays twice.",
-    ],
-    stack: "LangGraph, FastAPI, SQLite (WAL), OpenAI, Semantic Scholar, OpenAlex, arXiv, React 19, MUI, d3, OpenTelemetry, Docker, AWS EC2",
-    links: [],
+    slug: "rag-lab",
+    kind: "project",
+    name: "RAG Lab",
+    title: "RAG Lab: benchmarking Vietnamese retrieval",
+    tagline: "Seven retrieval strategies compared side by side on Vietnamese documents.",
+    role: "Author",
+    when: "2026",
+    lead: "Seven notebooks of retrieval ablations turned into a workspace: BM25, hybrid, reciprocal rank fusion, HyDE, MMR, cross-encoder reranking and semantic chunking, compared side by side on Vietnamese documents with a FastAPI backend, Redis job workers and a Next.js UI.",
+    body: [],
+    stack: ["FastAPI", "Redis", "RQ", "PostgreSQL", "Next.js", "Docker"],
+    links: [{ label: "Code", href: "https://github.com/hugebenevolence/RAG-Enhancement" }],
     page: true,
   },
   {
     slug: "pawcal",
-    kind: "product",
+    kind: "project",
+    name: "PawCal",
     title: "PawCal: a booking assistant for veterinary clinics",
-    short: "PawCal",
-    marginStrong: "Founder",
-    margin: ["2025 – now", "Technical lead"],
+    tagline: "A Zalo chatbot that books appointments and sends reminders for vet clinics.",
+    role: "Founder and technical lead",
+    when: "2025 – now",
     lead: "Vietnamese pet owners message clinics on Zalo, so that's where PawCal lives: a chatbot on Zalo OA that books appointments, sends reminders and answers routine questions, so staff spend less of the day answering messages.",
     result: "Raised about USD 2,000 in early support and validated with beta clinics.",
     body: [],
-    stack: "Next.js, Supabase, n8n, Zalo OA, Vercel, Docker",
+    stack: ["Next.js", "Supabase", "n8n", "Zalo OA", "Vercel", "Docker"],
     links: [],
     page: false,
   },
   {
-    slug: "rag-lab",
-    kind: "more",
-    title: "RAG Lab: benchmarking Vietnamese retrieval",
-    short: "RAG Lab",
-    marginStrong: "2026",
-    margin: ["Research tooling"],
-    lead: "Seven notebooks of retrieval ablations turned into a workspace: BM25, hybrid, reciprocal rank fusion, HyDE, MMR, cross-encoder reranking and semantic chunking, compared side by side on Vietnamese documents with a FastAPI backend, Redis job workers and a Next.js UI.",
-    body: [],
-    stack: "FastAPI, Redis, RQ, PostgreSQL, Next.js, Docker",
-    links: [{ label: "Code on GitHub", href: "https://github.com/hugebenevolence/RAG-Enhancement" }],
-    page: true,
-  },
-  {
     slug: "brainify",
-    kind: "more",
+    kind: "project",
+    name: "Brainify",
     title: "Brainify: a team collaboration platform",
-    short: "Brainify",
-    marginStrong: "Team lead",
-    margin: ["Full-stack"],
+    tagline: "A collaboration platform on .NET 8 microservices.",
+    role: "Team lead and full-stack developer",
+    when: "University project",
     lead: "A collaboration platform on .NET 8 microservices. I designed the service boundaries, API contracts and data flow between services, and led the team through planning and delivery.",
     body: [],
-    stack: ".NET 8, Next.js, SQL Server, Redis, Docker",
+    stack: [".NET 8", "Next.js", "SQL Server", "Redis", "Docker"],
     links: [],
     page: false,
   },

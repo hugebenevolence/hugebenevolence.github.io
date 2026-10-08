@@ -1,280 +1,256 @@
 ---
 import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
-import NameTokens from "../components/NameTokens.astro";
-import WorkEntry from "../components/WorkEntry.astro";
-import Router from "../components/Router.astro";
-import Budget from "../components/Budget.astro";
-import Tokenizer from "../components/Tokenizer.astro";
-import VlmStages from "../components/VlmStages.astro";
-import TeachBack from "../components/TeachBack.astro";
-import Showcase from "../components/Showcase.astro";
-import { person, experience, education, community, awards, workBySlug } from "../data/profile";
+import FeaturedWork from "../components/FeaturedWork.astro";
+import Publication from "../components/Publication.astro";
+import ProjectRow from "../components/ProjectRow.astro";
+import { person, experience, education, community, awards, skills, work, workBySlug } from "../data/profile";
+import { litreviewShots, smileShots, kdhShots } from "../data/media";
 
-import pawcal from "../assets/pawcal-banner.png";
-import { litreviewShots, kdhShots, ragShots, smileShots } from "../data/media";
+import portrait from "../assets/portrait.jpg";
 import codeRace from "../assets/code-race.jpg";
 import cat from "../assets/pet-cat.png";
 import dog from "../assets/pet-dog.png";
+import pawcal from "../assets/pawcal-banner.png";
+import ragTop from "../assets/shots/rag-top.png";
+
+const research = work.filter((w) => w.kind === "research");
+const projects = work.filter((w) => w.kind === "project");
+const projectImages: Record<string, { image: ImageMetadata; alt: string }> = {
+  pawcal: {
+    image: pawcal,
+    alt: "PawCal banner with the landing page on a laptop and a Zalo appointment reminder on a phone.",
+  },
+  "rag-lab": {
+    image: ragTop,
+    alt: "RAG Lab workbench with query, compare, jobs and evaluation views and strategy scores.",
+  },
+};
 ---
 
 <Base>
-  <section class="hero" aria-labelledby="hero-name">
-    <div class="hero-paper oli" aria-hidden="true"></div>
-    <div class="wrap sheet hero-sheet ruled">
-      <div class="margin">
-        <span class="m-item m-strong">{person.role}</span><br /><span class="m-item">{person.city}</span>
-      </div>
-      <div class="body" id="hero-name">
-        <NameTokens />
-        <p class="hero-lede">
-          I train models that read Vietnamese properly, make them think only as hard as a question needs, and
-          build the services that put them in front of people.
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <h1 class="hero-name">{person.name}</h1>
+        <p class="hero-role">AI Engineer working on applied NLP, LLM systems and the backend services behind them.</p>
+        <p class="hero-summary">
+          I build language and vision models for Vietnamese, make LLMs spend compute only where a question needs
+          it, and ship the services that put them in front of users. Two papers accepted in 2026.
         </p>
-        <p class="hero-now">
-          <strong>Now, {person.now.date}.</strong>{" "}{person.now.text}
-        </p>
+        <dl class="hero-facts">
+          <div>
+            <dt>Based in</dt>
+            <dd>{person.city}</dd>
+          </div>
+          <div>
+            <dt>Currently</dt>
+            <dd>Team lead, Vingroup AI Talent Program. Researcher and TA, AI VIET NAM.</dd>
+          </div>
+          <div>
+            <dt>Open to</dt>
+            <dd>AI engineering roles and research collaborations</dd>
+          </div>
+        </dl>
         <div class="hero-actions">
-          <a class="btn btn-fill" href={`mailto:${person.email}`}>Email me</a>
-          <a class="btn" href={person.cv}>Download CV</a>
-          <span class="hero-links">
+          <a class="btn btn-primary" href={person.cv}>Download CV</a>
+          <a class="btn" href={`mailto:${person.email}`}>Email me</a>
+          <span class="link-row hero-links">
             <a href={person.github}>GitHub</a>
-            <a href={person.orcid}>ORCID</a>
             <a href={person.linkedin}>LinkedIn</a>
+            <a href={person.orcid}>ORCID</a>
           </span>
+        </div>
+      </div>
+      <Image
+        class="hero-photo"
+        src={portrait}
+        alt="Trần Đại Nhân speaking at an FCODER event."
+        widths={[320, 640]}
+        sizes="(max-width: 860px) 200px, 320px"
+        loading="eager"
+      />
+    </div>
+  </section>
+
+  <section id="work" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Selected work</h2>
+        <p class="section-lede">
+          Products I led or owned, shown running: recorded clips and screens from the real applications.
+        </p>
+      </div>
+      <FeaturedWork item={workBySlug("litreview")} shots={litreviewShots} />
+      <FeaturedWork item={workBySlug("smile")} shots={smileShots} />
+      <FeaturedWork item={workBySlug("ke-doc-hanh")} shots={kdhShots} />
+    </div>
+  </section>
+
+  <section id="research" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Research</h2>
+        <p class="section-lede">Two accepted papers on the same question: how much reasoning does a model need for a given input?</p>
+      </div>
+      {research.map((r) => <Publication item={r} />)}
+    </div>
+  </section>
+
+  <section id="projects" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">More projects</h2>
+      </div>
+      <div class="project-list">
+        {
+          projects.map((p) => (
+            <ProjectRow item={p} image={projectImages[p.slug]?.image} imageAlt={projectImages[p.slug]?.alt} />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="experience" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Experience</h2>
+      </div>
+      <ol class="timeline">
+        {
+          experience.map((e) => (
+            <li class="tl-row">
+              <p class="tl-when num">{e.when}</p>
+              <div>
+                <h3 class="tl-title">
+                  {e.title}, <span class="tl-org">{e.org}</span>
+                </h3>
+                <p class="tl-where">{e.where}</p>
+                <ul class="tl-points">
+                  {e.points.map((p) => (
+                    <li>{p}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section id="skills" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title">Skills</h2>
+      </div>
+      <dl class="skills">
+        {
+          skills.map((s) => (
+            <div class="skill-row">
+              <dt>{s.area}</dt>
+              <dd>{s.items}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section id="background" class="section">
+    <div class="wrap bg-grid">
+      <div>
+        <h2 class="bg-title">Education</h2>
+        <p class="bg-strong">{education.school}</p>
+        <p>{education.degree}</p>
+        <p class="bg-muted num">{education.when}, GPA {education.gpa}</p>
+      </div>
+      <div>
+        <h2 class="bg-title">Awards</h2>
+        <ul class="bg-list">
+          {
+            awards.map((a) => (
+              <li>
+                {a.what}
+                {a.when && <span class="bg-muted num">, {a.when}</span>}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <h2 class="bg-title">Leadership and teaching</h2>
+        <ul class="bg-list">
+          {
+            community.map((c) => (
+              <li>
+                <span class="bg-strong">{c.title}</span>
+                <span class="bg-muted num">, {c.when}</span>
+                <p class="bg-detail">{c.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <div class="wrap about-grid">
+      <figure class="about-photo">
+        <Image
+          src={codeRace}
+          alt="Trần Đại Nhân speaking in front of a projected Code Race slide at an FCODER event."
+          widths={[600, 1000, 1400]}
+          sizes="(max-width: 860px) 100vw, 34rem"
+        />
+        <figcaption>Opening Code Race, an FCODER programming contest at FPT University.</figcaption>
+      </figure>
+      <div class="about-text">
+        <h2 class="section-title">About</h2>
+        <p>
+          I studied software engineering at FPT University, where I ran FCODER, the university's IT club, and led a
+          student research team.
+        </p>
+        <p>
+          Today I do research and teach at AI VIET NAM, and lead the LitReview team in the Vingroup AI Talent
+          Program. I'm also building PawCal, a booking assistant for veterinary clinics.
+        </p>
+        <div class="pets">
+          <figure>
+            <Image src={cat} alt="Cà Phê, a white cat." widths={[160, 320]} sizes="96px" />
+            <figcaption>Cà Phê</figcaption>
+          </figure>
+          <figure>
+            <Image src={dog} alt="Bạc Xĩu, a small tan dog." widths={[200, 400]} sizes="128px" />
+            <figcaption>Bạc Xĩu</figcaption>
+          </figure>
+          <p class="pets-note">and the two who make sure I take breaks.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="wrap ruled">
-    <section id="research" class="section" aria-labelledby="research-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="research-title">Research</h2>
-          <p class="section-lede">
-            Two papers accepted in 2026, both asking the same question: how much reasoning does a model actually
-            need for this input?
-          </p>
-        </div>
-      </div>
-      <WorkEntry item={workBySlug("adaptive-reasoning-vqa")} ring="815 s">
-        <Router />
-      </WorkEntry>
-      <WorkEntry item={workBySlug("multi-mode-cot")} ring="0.8006">
-        <Budget />
-      </WorkEntry>
-    </section>
-
-    <section id="models" class="section" aria-labelledby="models-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="models-title">Vietnamese models</h2>
-          <p class="section-lede">
-            A language model trained from random weights, and a vision-language model assembled from pretrained
-            parts. Team projects at AI VIET NAM.
-          </p>
-        </div>
-      </div>
-      <WorkEntry item={workBySlug("vietnamese-gpt2")}>
-        <Tokenizer />
-      </WorkEntry>
-      <WorkEntry item={workBySlug("vietnamese-vlm")}>
-        <VlmStages />
-      </WorkEntry>
-    </section>
-
-    <section id="work" class="section" aria-labelledby="work-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="work-title">Products and systems</h2>
-          <p class="section-lede">Software with users, money or a deadline attached.</p>
-        </div>
-      </div>
-      <WorkEntry item={workBySlug("litreview")} ring="0.326">
-        <Showcase label="LitReview screens" items={litreviewShots} />
-      </WorkEntry>
-      <WorkEntry item={workBySlug("ke-doc-hanh")} ring="$5">
-        <Showcase label="Kẻ Độc Hành screens" items={kdhShots} />
-        <TeachBack />
-      </WorkEntry>
-      <WorkEntry item={workBySlug("smile")}>
-        <Showcase label="S.M.I.L.E screens" items={smileShots} />
-      </WorkEntry>
-      <WorkEntry item={workBySlug("pawcal")}>
-        <figure class="figure shot">
-          <Image
-            src={pawcal}
-            alt="PawCal banner: 'Hệ thống nhắc lịch toàn diện dành cho thú cưng', with the PawCal landing page on a laptop and a Zalo reminder message on a phone."
-            widths={[720, 1200, 1640]}
-            sizes="(max-width: 900px) 100vw, 52rem"
-          />
-          <figcaption class="figure-caption">
-            The landing page and a Zalo reminder: “Xin chào chị Ngọc, phòng khám xin nhắc: bé cún Sữa có lịch tiêm ngừa vào ngày 10/10 lúc 15h.”
-          </figcaption>
-        </figure>
-      </WorkEntry>
-    </section>
-
-    <section id="more" class="section" aria-labelledby="more-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="more-title">Smaller projects</h2>
-        </div>
-      </div>
-      <WorkEntry item={workBySlug("rag-lab")}>
-        <Showcase label="RAG Lab screens" items={ragShots} />
-      </WorkEntry>
-      <WorkEntry item={workBySlug("brainify")} />
-    </section>
-
-    <section id="experience" class="section" aria-labelledby="exp-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="exp-title">Experience</h2>
-        </div>
-      </div>
-      {
-        experience.map((e) => (
-          <article class="sheet entry exp">
-            <div class="margin">
-              <span class="m-item m-strong">{e.when}</span>
-              <br />
-              <span class="m-item">{e.where}</span>
-            </div>
-            <div class="body">
-              <h3 class="entry-title">{e.org}</h3>
-              <p class="entry-sub">{e.title}</p>
-              <ul class="points">
-                {e.points.map((p) => (
-                  <li>{p}</li>
-                ))}
-              </ul>
-            </div>
-          </article>
-        ))
-      }
-      <article class="sheet entry exp">
-        <div class="margin">
-          <span class="m-item m-strong">{education.when}</span>
-        </div>
-        <div class="body">
-          <h3 class="entry-title">{education.school}</h3>
-          <p class="entry-sub">{education.degree}, GPA {education.gpa}</p>
-        </div>
-      </article>
-    </section>
-
-    <section id="community" class="section" aria-labelledby="community-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="community-title">Teaching and community</h2>
-        </div>
-      </div>
-      <div class="sheet entry">
-        <div class="margin"></div>
-        <div class="body">
-          <figure class="figure photo">
-            <Image
-              src={codeRace}
-              alt="Trần Đại Nhân speaking into a microphone in front of a projected 'Code Race' slide at an FCODER event."
-              widths={[720, 1200, 1800]}
-              sizes="(max-width: 900px) 100vw, 52rem"
-            />
-            <figcaption class="figure-caption">Opening Code Race, an FCODER programming contest at FPT University.</figcaption>
-          </figure>
-          <ul class="plain-list">
-            {
-              community.map((c) => (
-                <li>
-                  <h3 class="li-title">{c.title}</h3>
-                  <p class="li-when">{c.when}</p>
-                  <p>{c.text}</p>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section id="awards" class="section" aria-labelledby="awards-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="awards-title">Awards</h2>
-        </div>
-      </div>
-      <div class="sheet entry">
-        <div class="margin"></div>
-        <div class="body">
-          <ul class="awards">
-            {
-              awards.map((a) => (
-                <li>
-                  <span class="aw-what">{a.what}</span>
-                  {a.note && <span class="aw-note">{a.note}</span>}
-                  {a.when && <span class="aw-when num">{a.when}</span>}
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section id="pets" class="section" aria-labelledby="pets-title">
-      <div class="sheet section-head">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="pets-title">Off the keyboard</h2>
-          <p class="section-lede">Two good reasons to step away from the screen and come back with a clearer head.</p>
-        </div>
-      </div>
-      <div class="sheet entry">
-        <div class="margin"></div>
-        <div class="body pets">
-          <figure>
-            <Image src={cat} alt="Cà Phê, a white cat, sitting upright." widths={[240, 480]} sizes="240px" />
-            <figcaption>Cà Phê</figcaption>
-          </figure>
-          <figure>
-            <Image src={dog} alt="Bạc Xĩu, a small tan dog." widths={[320, 640]} sizes="320px" />
-            <figcaption>Bạc Xĩu</figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact" class="section contact" aria-labelledby="contact-title">
-      <div class="sheet">
-        <div class="margin"></div>
-        <div class="body">
-          <h2 class="section-title" id="contact-title">Contact</h2>
-          <p class="section-lede">
-            I'm looking for AI engineering roles and research collaborations, especially on Vietnamese language
-            and vision. Email gets the fastest answer.
-          </p>
-          <p class="contact-mail">
-            <a href={`mailto:${person.email}`}>{person.email}</a>
-            <button type="button" class="btn copy-btn" data-copy={person.email}>Copy</button>
-          </p>
-          <p class="entry-links">
-            <a href={person.cv}>CV (PDF)</a>
-            <a href={person.github}>GitHub</a>
-            <a href={person.linkedin}>LinkedIn</a>
-            <a href={person.orcid}>ORCID</a>
-          </p>
-        </div>
-      </div>
-    </section>
-  </div>
+  <section id="contact" class="section contact">
+    <div class="wrap">
+      <h2 class="section-title">Contact</h2>
+      <p class="section-lede contact-lede">
+        I'm open to AI engineering roles and research collaborations, especially on Vietnamese language and
+        vision. Email is the fastest way to reach me.
+      </p>
+      <p class="contact-mail">
+        <a href={`mailto:${person.email}`}>{person.email}</a>
+        <button type="button" class="btn btn-sm-copy" data-copy={person.email}>Copy</button>
+      </p>
+      <p class="link-row">
+        <a href={person.cv}>CV (PDF)</a>
+        <a href={person.github}>GitHub</a>
+        <a href={person.linkedin}>LinkedIn</a>
+        <a href={person.orcid}>ORCID</a>
+      </p>
+    </div>
+  </section>
 </Base>
 
 <script>
@@ -293,35 +269,48 @@ import dog from "../assets/pet-dog.png";
 
 <style>
   .hero {
-    position: relative;
-    overflow: hidden;
+    padding-block: clamp(3rem, 7vw, 5.5rem) clamp(3rem, 6vw, 4.5rem);
   }
-  .hero-paper {
-    position: absolute;
-    inset: 0;
-    mask-image: linear-gradient(to bottom, #000 55%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 3.5rem;
+    align-items: center;
   }
-  .hero-sheet {
-    padding-block: clamp(3rem, 8vw, 6rem) clamp(1rem, 3vw, 2rem);
+  .hero-name {
+    font-size: clamp(2.5rem, 5.4vw, 3.75rem);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
   }
-  .hero-sheet > .margin {
-    padding-top: 2.4rem;
-  }
-  .hero-lede {
-    margin-top: 2rem;
-    max-width: 36rem;
-    font-size: clamp(1.25rem, 2.2vw, 1.5rem);
-    line-height: 1.45;
-    font-weight: 600;
-  }
-  .hero-now {
+  .hero-role {
     margin-top: 1rem;
     max-width: 36rem;
-    color: var(--pencil);
+    font-size: clamp(1.125rem, 2vw, 1.375rem);
+    line-height: 1.45;
+    font-weight: 500;
   }
-  .hero-now strong {
-    color: var(--text);
+  .hero-summary {
+    margin-top: 1rem;
+    max-width: 38rem;
+    color: var(--muted);
+  }
+  .hero-facts {
+    margin: 1.75rem 0 0;
+    display: grid;
+    gap: 0.5rem;
+    max-width: 40rem;
+    font-size: 0.9375rem;
+  }
+  .hero-facts div {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .hero-facts dt {
+    color: var(--muted);
+  }
+  .hero-facts dd {
+    margin: 0;
   }
   .hero-actions {
     margin-top: 2rem;
@@ -331,148 +320,210 @@ import dog from "../assets/pet-dog.png";
     gap: 0.75rem;
   }
   .hero-links {
-    display: inline-flex;
-    gap: 1.25rem;
     margin-left: 0.75rem;
-    font-weight: 600;
-    font-size: 1rem;
   }
-
-  .shot {
-    padding: 0;
-    overflow: hidden;
-  }
-  .shot img {
-    width: 100%;
-    border-bottom: 1px solid var(--rule);
-  }
-  .shot .figure-caption {
-    margin: 0;
-    padding: 0.85rem 1.1rem;
-  }
-  .photo {
-    padding: 0;
-    overflow: hidden;
-  }
-  .photo img {
-    width: 100%;
-    aspect-ratio: 3 / 2;
+  .hero-grid :global(.hero-photo) {
+    width: 300px;
+    aspect-ratio: 4 / 5;
     object-fit: cover;
-  }
-  .photo .figure-caption {
-    margin: 0;
-    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
   }
 
-  .points {
-    margin: 0.85rem 0 0;
+  .timeline {
+    list-style: none;
+    padding: 0;
+  }
+  .tl-row {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 2rem;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .tl-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .tl-when {
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+  .tl-title {
+    font-size: 1.125rem;
+  }
+  .tl-org {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .tl-where {
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .tl-points {
+    margin-top: 0.75rem;
     padding-left: 1.1rem;
-    max-width: var(--measure);
     display: grid;
     gap: 0.4rem;
-  }
-  .points li::marker {
-    color: var(--red);
-  }
-
-  .plain-list {
-    list-style: none;
-    margin: 2rem 0 0;
-    padding: 0;
-    display: grid;
-    gap: 1.75rem;
     max-width: var(--measure);
   }
-  .li-title {
-    font-size: 1.25rem;
-    letter-spacing: -0.01em;
-  }
-  .li-when {
-    font-size: 0.875rem;
-    color: var(--pencil);
-    margin: 0.2rem 0 0.4rem;
+  .tl-points li::marker {
+    color: var(--border-strong);
   }
 
-  .awards {
-    list-style: none;
+  .skills {
     margin: 0;
-    padding: 0;
-    max-width: 48rem;
-  }
-  .awards li {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 1.5rem;
-    padding-block: 0.8rem;
-    border-bottom: 1px solid var(--rule);
   }
-  .awards li:first-child {
-    border-top: 1px solid var(--rule);
+  .skill-row {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 2rem;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--border);
   }
-  .aw-what {
-    font-weight: 600;
+  .skill-row:first-child {
+    border-top: 0;
+    padding-top: 0;
   }
-  .aw-note {
-    grid-row: 2;
-    font-size: 0.9375rem;
-    color: var(--pencil);
+  .skill-row dt {
+    font-weight: 500;
   }
-  .aw-when {
-    grid-column: 2;
-    grid-row: 1;
-    color: var(--pencil);
+  .skill-row dd {
+    margin: 0;
+    color: var(--muted);
   }
 
+  .bg-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3rem;
+  }
+  .bg-title {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+  .bg-strong {
+    font-weight: 500;
+  }
+  .bg-muted {
+    color: var(--muted);
+  }
+  .bg-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+    font-size: 0.9375rem;
+  }
+  .bg-detail {
+    margin-top: 0.25rem;
+    color: var(--muted);
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 3.5rem;
+    align-items: start;
+  }
+  .about-photo {
+    margin: 0;
+  }
+  .about-photo :global(img) {
+    width: 100%;
+    border-radius: 10px;
+  }
+  .about-photo figcaption {
+    margin-top: 0.6rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .about-text {
+    display: grid;
+    gap: 1rem;
+    max-width: var(--measure);
+  }
+  .about-text p {
+    color: var(--muted);
+  }
+  .about-text p:first-of-type {
+    margin-top: 0.5rem;
+  }
   .pets {
     display: flex;
-    align-items: flex-end;
-    gap: 2.5rem;
     flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
   }
   .pets figure {
     margin: 0;
   }
-  .pets img {
-    height: 15rem;
+  .pets :global(img) {
+    height: 7.5rem;
     width: auto;
     object-fit: contain;
   }
   .pets figcaption {
-    margin-top: 0.5rem;
-    font-weight: 600;
+    margin-top: 0.3rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .pets-note {
+    font-size: 0.875rem;
+    padding-bottom: 1.6rem;
   }
 
-  .contact {
-    padding-bottom: 3rem;
+  .contact-lede {
+    margin-top: 0.75rem;
+    max-width: var(--measure);
   }
   .contact-mail {
-    margin-top: 1.75rem;
+    margin-block: 1.75rem 1.25rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
   }
   .contact-mail a {
-    font-size: clamp(1.5rem, 4.4vw, 2.75rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-decoration-thickness: 2px;
+    font-size: clamp(1.375rem, 3.4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--text);
     overflow-wrap: anywhere;
   }
-  .copy-btn {
-    min-height: 40px;
+  .contact-mail a:hover {
+    color: var(--accent);
+  }
+  .btn-sm-copy {
+    min-height: 34px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.875rem;
   }
 
-  @media (max-width: 760px) {
-    .hero-sheet > .margin {
-      padding-top: 0;
+  @media (max-width: 860px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+    }
+    .hero-grid :global(.hero-photo) {
+      order: -1;
+      width: 160px;
     }
     .hero-links {
       margin-left: 0;
       width: 100%;
     }
-    .pets img {
-      height: 11rem;
+    .hero-facts div,
+    .tl-row,
+    .skill-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.25rem;
+    }
+    .bg-grid,
+    .about-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.5rem;
     }
   }
 </style>

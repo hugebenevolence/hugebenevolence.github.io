@@ -127,26 +127,55 @@ const id = "sc-" + Math.random().toString(36).slice(2, 7);
 
 <style>
   .showcase {
+    margin: 0;
     padding: 0;
-    overflow: hidden;
+    border: 0;
+    background: transparent;
   }
   .sc-tabs {
-    margin: 1rem 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+  }
+  .sc-tabs button {
+    position: relative;
+    padding: 0.6rem 0;
+    min-height: 40px;
+    border-radius: 0;
+    font-size: 0.9375rem;
+    color: var(--muted);
+    background: transparent;
+    box-shadow: none;
+  }
+  .sc-tabs button[aria-selected="true"] {
+    color: var(--text);
+    background: transparent;
+    box-shadow: none;
+  }
+  .sc-tabs button[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--text);
   }
   .sc-panel {
     margin: 0;
   }
-  .sc-tabs + .sc-panel,
-  .sc-tabs ~ .sc-panel {
-    margin-top: 1rem;
-  }
   .sc-screen {
     position: relative;
-    background: #000;
-    border-block: 1px solid var(--rule);
-  }
-  .showcase > .sc-panel:first-child .sc-screen {
-    border-top: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
   }
   .sc-screen :global(img),
   .sc-screen video {
@@ -160,13 +189,14 @@ const id = "sc-" + Math.random().toString(36).slice(2, 7);
     bottom: 0.75rem;
     display: grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border: 0;
     border-radius: 50%;
     background: rgb(255 255 255 / 0.92);
     color: #111;
     cursor: pointer;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
   }
   .sc-play .i-pause,
   .sc-play[data-state="playing"] .i-play {
@@ -176,7 +206,6 @@ const id = "sc-" + Math.random().toString(36).slice(2, 7);
     display: inline;
   }
   .sc-panel .figure-caption {
-    margin: 0;
-    padding: 0.85rem 1.1rem 1rem;
+    margin-top: 0.75rem;
   }
 </style>

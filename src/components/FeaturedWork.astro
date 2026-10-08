@@ -1,0 +1,159 @@
+---
+import type { Work } from "../data/profile";
+import type { ShowcaseItem } from "../data/media";
+import Showcase from "./Showcase.astro";
+
+interface Props {
+  item: Work;
+  shots: ShowcaseItem[];
+}
+const { item, shots } = Astro.props;
+const meta = [
+  ["Role", item.role],
+  ["Context", item.context],
+  ["When", item.when],
+  ["Team", item.team],
+].filter(([, v]) => v) as [string, string][];
+---
+
+<article class="fw" id={item.slug}>
+  <div class="fw-head">
+    <div class="fw-intro">
+      <h3 class="fw-title">{item.name}</h3>
+      <p class="fw-tagline">{item.tagline}</p>
+      <p class="fw-lead">{item.lead}</p>
+      <p class="link-row fw-links">
+        {item.page && <a href={`/work/${item.slug}/`}>Read the case study</a>}
+        {item.links.map((l) => (
+          <a href={l.href}>{l.label}</a>
+        ))}
+      </p>
+    </div>
+    <dl class="fw-meta">
+      {
+        meta.map(([k, v]) => (
+          <div>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+
+  {
+    item.facts && (
+      <ul class="fw-facts">
+        {item.facts.map((f) => (
+          <li>
+            <span class="fw-fact-value num">{f.value}</span>
+            <span class="fw-fact-label">{f.label}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  <Showcase label={`${item.name} screens`} items={shots} />
+
+  <ul class="tags fw-stack" aria-label="Built with">
+    {item.stack.map((s) => <li>{s}</li>)}
+  </ul>
+</article>
+
+<style>
+  .fw + .fw {
+    margin-top: 5rem;
+    padding-top: 5rem;
+    border-top: 1px solid var(--border);
+  }
+  .fw-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 3rem;
+    align-items: start;
+  }
+  .fw-title {
+    font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+  }
+  .fw-tagline {
+    margin-top: 0.4rem;
+    font-size: 1.125rem;
+    color: var(--muted);
+  }
+  .fw-lead {
+    margin-top: 1rem;
+    max-width: var(--measure);
+  }
+  .fw-links {
+    margin-top: 1rem;
+  }
+  .fw-meta {
+    margin: 0.35rem 0 0;
+    display: grid;
+    gap: 0.9rem;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--border);
+    font-size: 0.9375rem;
+  }
+  .fw-meta dt {
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  .fw-meta dd {
+    margin: 0.1rem 0 0;
+    font-weight: 500;
+  }
+  .fw-facts {
+    list-style: none;
+    margin: 2rem 0;
+    padding: 1.25rem 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .fw-facts li {
+    display: grid;
+    align-content: start;
+    gap: 0.2rem;
+  }
+  .fw-fact-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .fw-fact-label {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .fw-head + :global(.showcase) {
+    margin-top: 2rem;
+  }
+  .fw-stack {
+    margin-top: 1.25rem;
+  }
+
+  @media (max-width: 860px) {
+    .fw-head {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+    .fw-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: 1rem 0 0;
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+    .fw-facts {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+    }
+    .fw + .fw {
+      margin-top: 3.5rem;
+      padding-top: 3.5rem;
+    }
+  }
+</style>

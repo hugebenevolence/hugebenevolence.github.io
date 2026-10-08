@@ -1,0 +1,86 @@
+---
+import type { Work } from "../data/profile";
+
+interface Props {
+  item: Work;
+}
+const { item } = Astro.props;
+const me = "Dai-Nhan Tran";
+const [before, after] = (item.authors ?? "").split(me);
+---
+
+<article class="pub" id={item.slug}>
+  <div class="pub-venue">
+    <span class="badge">{item.status}</span>
+    <span>{item.venue}</span>
+  </div>
+  <h3 class="pub-title">
+    <a href={`/work/${item.slug}/`}>{item.title}</a>
+  </h3>
+  <p class="pub-authors">
+    {before}<strong>{me}</strong>{after}
+    <span class="pub-role">({item.role.toLowerCase()})</span>
+  </p>
+  <p class="pub-summary">{item.lead}</p>
+  {item.result && <p class="pub-result">{item.result}</p>}
+  <p class="link-row pub-links">
+    <a href={`/work/${item.slug}/`}>Details and interactive figure</a>
+    {item.links.map((l) => <a href={l.href}>{l.label}</a>)}
+    {item.bibtex && <a href={`/work/${item.slug}/#cite`}>BibTeX</a>}
+  </p>
+</article>
+
+<style>
+  .pub {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 52rem;
+  }
+  .pub + .pub {
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .pub-venue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .pub-title {
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+  .pub-title a {
+    color: var(--text);
+  }
+  .pub-title a:hover {
+    color: var(--accent);
+  }
+  .pub-authors {
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+  .pub-authors strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .pub-role {
+    margin-left: 0.25rem;
+  }
+  .pub-summary {
+    margin-top: 0.4rem;
+    max-width: var(--measure);
+  }
+  .pub-result {
+    max-width: var(--measure);
+    padding-left: 1rem;
+    border-left: 2px solid var(--accent);
+    font-weight: 500;
+  }
+  .pub-links {
+    margin-top: 0.4rem;
+  }
+</style>

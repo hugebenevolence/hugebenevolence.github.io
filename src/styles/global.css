@@ -1,71 +1,78 @@
-/* Vở ô li: cool paper, mực tím (violet school ink) for anything that is mine,
-   bút đỏ (teacher's red pen) for the margin rule and for things that cost more. */
+/* Quiet, neutral surfaces so the product screens carry the colour.
+   One accent (deep teal) for links, active states and the figures' highlights. */
 
 @import "@fontsource/be-vietnam-pro/vietnamese-400.css";
-@import "@fontsource/be-vietnam-pro/vietnamese-400-italic.css";
+@import "@fontsource/be-vietnam-pro/vietnamese-500.css";
 @import "@fontsource/be-vietnam-pro/vietnamese-600.css";
-@import "@fontsource/be-vietnam-pro/vietnamese-800.css";
 @import "@fontsource/be-vietnam-pro/latin-400.css";
-@import "@fontsource/be-vietnam-pro/latin-400-italic.css";
+@import "@fontsource/be-vietnam-pro/latin-500.css";
 @import "@fontsource/be-vietnam-pro/latin-600.css";
-@import "@fontsource/be-vietnam-pro/latin-800.css";
 @import "@fontsource/ibm-plex-mono/vietnamese-400.css";
 @import "@fontsource/ibm-plex-mono/latin-400.css";
 
 :root {
-  --paper: #f6f5fb;
-  --paper-raised: #ffffff;
-  --rule: #d8d3ee;
-  --rule-faint: #ebe8f6;
-  --text: #1d1838;
-  --pencil: #5f5a78;
-  --ink: #4a2bc9;
-  --ink-soft: #e6e0ff;
-  --red: #cf2d1d;
-  --red-soft: #fbe3df;
-  --on-ink: #ffffff;
+  --bg: #ffffff;
+  --surface: #f5f6f7;
+  --border: #e3e5e8;
+  --border-strong: #cdd1d6;
+  --text: #15181c;
+  --muted: #5d6671;
+  --accent: #0f6b66;
+  --accent-soft: #e6f1f0;
+  --warn: #b45309;
+  --warn-soft: #fbf0e2;
+  --on-accent: #ffffff;
+
+  /* Aliases used by the interactive figures */
+  --ink: var(--accent);
+  --ink-soft: var(--accent-soft);
+  --red: var(--warn);
+  --red-soft: var(--warn-soft);
+  --rule: var(--border);
+  --rule-faint: var(--surface);
+  --pencil: var(--muted);
+  --paper: var(--bg);
+  --paper-raised: var(--bg);
+  --on-ink: var(--on-accent);
 
   --sans: "Be Vietnam Pro", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
-
-  /* One ô li cell is 32px wide, split into four 8px writing rows. */
-  --row: 8px;
-  --cell: 32px;
-  --margin-col: 10.5rem;
-  --gutter: 2rem;
-  --measure: 40rem;
-  --radius: 6px;
+  --radius: 8px;
+  --measure: 42rem;
+  --container: 1120px;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #14122a;
-    --paper-raised: #1c1938;
-    --rule: #2f2b56;
-    --rule-faint: #211e41;
-    --text: #edebf8;
-    --pencil: #a7a2c7;
-    --ink: #ab9cff;
-    --ink-soft: #2c2566;
-    --red: #ff6d5d;
-    --red-soft: #3b1d27;
-    --on-ink: #14122a;
+    --bg: #0f1215;
+    --surface: #161a1e;
+    --border: #272c32;
+    --border-strong: #3a4048;
+    --text: #e8eaed;
+    --muted: #9aa3ad;
+    --accent: #5cc2b5;
+    --accent-soft: #14302d;
+    --warn: #e59a4b;
+    --warn-soft: #33230f;
+    --on-accent: #0f1215;
+    --paper-raised: var(--surface);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #14122a;
-  --paper-raised: #1c1938;
-  --rule: #2f2b56;
-  --rule-faint: #211e41;
-  --text: #edebf8;
-  --pencil: #a7a2c7;
-  --ink: #ab9cff;
-  --ink-soft: #2c2566;
-  --red: #ff6d5d;
-  --red-soft: #3b1d27;
-  --on-ink: #14122a;
+  --bg: #0f1215;
+  --surface: #161a1e;
+  --border: #272c32;
+  --border-strong: #3a4048;
+  --text: #e8eaed;
+  --muted: #9aa3ad;
+  --accent: #5cc2b5;
+  --accent-soft: #14302d;
+  --warn: #e59a4b;
+  --warn-soft: #33230f;
+  --on-accent: #0f1215;
+  --paper-raised: var(--surface);
   color-scheme: dark;
 }
 
@@ -82,40 +89,41 @@ html {
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 1.125rem;
-  line-height: 1.6;
+  font-size: 1.0625rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 img,
-svg {
+svg,
+video {
   display: block;
   max-width: 100%;
   height: auto;
 }
 
 a {
-  color: var(--ink);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
+  color: var(--accent);
+  text-decoration: none;
 }
 a:hover {
-  text-decoration-thickness: 2px;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 :focus-visible {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
 ::selection {
-  background: var(--ink);
-  color: var(--on-ink);
+  background: var(--accent-soft);
+  color: var(--text);
 }
 
 h1,
@@ -123,15 +131,20 @@ h2,
 h3,
 h4 {
   margin: 0;
-  line-height: 1.15;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
 p {
   margin: 0;
   text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0;
 }
 
 .sr-only {
@@ -143,262 +156,144 @@ p {
   white-space: nowrap;
 }
 
-/* ---------- Page frame ---------- */
-
 .wrap {
-  width: min(1180px, 100% - 32px);
+  width: min(var(--container), 100% - 40px);
   margin-inline: auto;
-}
-
-/* The ruled sheet: a margin column for dates and venues, a red margin rule,
-   then the writing area. The rule is drawn once per .ruled block so it runs
-   unbroken down the page, like the margin line in a school notebook. */
-.ruled {
-  position: relative;
-}
-.ruled::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: var(--margin-col);
-  border-left: 2px solid var(--red);
-  pointer-events: none;
-}
-.sheet {
-  display: grid;
-  grid-template-columns: var(--margin-col) minmax(0, 1fr);
-}
-.sheet > .margin {
-  padding-right: 1.25rem;
-  padding-top: 0.35rem;
-  text-align: right;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--pencil);
-}
-.sheet > .body {
-  padding-left: calc(var(--gutter) + 2px);
-  min-width: 0;
-}
-
-@media (max-width: 760px) {
-  :root {
-    --gutter: 1rem;
-  }
-  .sheet {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .ruled::before {
-    left: 0;
-  }
-  .sheet > .margin {
-    text-align: left;
-    padding: 0 0 0.5rem calc(var(--gutter) + 2px);
-  }
-  .sheet > .margin:empty {
-    display: none;
-  }
-  .sheet > .margin br {
-    display: none;
-  }
-  .sheet > .margin .m-item ~ .m-item::before {
-    content: ", ";
-  }
-}
-
-.margin .m-strong {
-  color: var(--text);
-  font-weight: 600;
-}
-
-/* ô li ruling, used behind the hero and inside figures */
-.oli {
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(to right, var(--rule) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--rule) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--rule-faint) 1px, transparent 1px);
-  background-size:
-    var(--cell) var(--cell),
-    var(--cell) var(--cell),
-    var(--row) var(--row);
-}
-
-/* ---------- Sections ---------- */
-
-.section {
-  padding-block: 4.5rem 0;
-}
-.section-head {
-  margin-bottom: 2.75rem;
-}
-.section-title {
-  font-size: clamp(2rem, 4.4vw, 3rem);
-  color: var(--text);
-}
-.section-lede {
-  margin-top: 0.85rem;
-  max-width: var(--measure);
-  color: var(--pencil);
-  font-size: 1.1875rem;
-}
-
-.entry {
-  padding-block: 1.25rem 3rem;
-}
-.entry-title {
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
-  max-width: 34ch;
-}
-.entry-sub {
-  margin-top: 0.4rem;
-  color: var(--pencil);
-  font-size: 0.9375rem;
-}
-.entry-text {
-  margin-top: 1rem;
-  max-width: var(--measure);
-}
-.entry-text + .entry-text {
-  margin-top: 0.85rem;
-}
-.entry-links {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.result-line {
-  margin-top: 1rem;
-  max-width: var(--measure);
-  font-weight: 600;
-}
-
-.stack {
-  margin-top: 1rem;
-  font-size: 0.9375rem;
-  color: var(--pencil);
-  max-width: var(--measure);
-}
-
-/* ---------- Buttons ---------- */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0.55rem 1.1rem;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--ink);
-  font: 600 1rem/1.2 var(--sans);
-  text-decoration: none;
-  cursor: pointer;
-  color: var(--ink);
-  background: transparent;
-}
-.btn:hover {
-  background: var(--ink-soft);
-}
-.btn-fill {
-  background: var(--ink);
-  color: var(--on-ink);
-}
-.btn-fill:hover {
-  background: var(--text);
-  border-color: var(--text);
-  color: var(--paper);
-}
-
-/* Segmented control used by the widgets */
-.seg {
-  display: inline-flex;
-  flex-wrap: wrap;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.seg button {
-  font: 600 0.9375rem/1.2 var(--sans);
-  color: var(--ink);
-  background: transparent;
-  border: 0;
-  padding: 0.6rem 0.95rem;
-  min-height: 42px;
-  cursor: pointer;
-}
-.seg button + button {
-  border-left: 1.5px solid var(--ink);
-}
-.seg button[aria-pressed="true"],
-.seg button[aria-selected="true"] {
-  background: var(--ink);
-  color: var(--on-ink);
-}
-@media (max-width: 560px) {
-  .seg {
-    border: 0;
-    overflow: visible;
-    gap: 0.4rem;
-  }
-  .seg button,
-  .seg button + button {
-    border: 1.5px solid var(--ink);
-    border-radius: var(--radius);
-  }
-}
-
-/* Widget frame: a sheet of ô li paper pinned into the entry */
-.figure {
-  margin: 1.75rem 0 0;
-  max-width: 52rem;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  background: var(--paper-raised);
-  padding: clamp(1rem, 3vw, 1.75rem);
-}
-.figure-caption {
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  color: var(--pencil);
-  max-width: 60ch;
 }
 
 .num {
   font-variant-numeric: tabular-nums;
 }
 
-/* Red-pen ring drawn around a number when it scrolls into view */
-.ring {
-  position: relative;
-  display: inline-block;
+/* ---------- Sections ---------- */
+
+.section {
+  padding-block: 4.5rem;
+  border-top: 1px solid var(--border);
+}
+.section-head {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  max-width: var(--measure);
+}
+.section-title {
+  font-size: clamp(1.625rem, 3vw, 2rem);
+}
+.section-lede {
+  color: var(--muted);
+}
+
+/* ---------- Buttons and links ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 42px;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  font: 500 0.9375rem/1.2 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn:hover {
+  border-color: var(--text);
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.btn-primary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  list-style: none;
+  padding: 0;
+}
+.tags li {
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--muted);
   white-space: nowrap;
-  margin-inline: 0.35em;
 }
-.ring svg {
-  position: absolute;
-  inset: -0.45em -0.6em;
-  width: calc(100% + 1.2em);
-  height: calc(100% + 0.9em);
-  max-width: none;
-  overflow: visible;
-  pointer-events: none;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
-.ring path {
-  fill: none;
-  stroke: var(--red);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 0.9s cubic-bezier(0.6, 0, 0.3, 1) 0.15s;
+
+/* ---------- Figures (shared by the interactive components) ---------- */
+
+.figure {
+  margin: 1.5rem 0 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  padding: clamp(1rem, 3vw, 1.5rem);
 }
-.ring.is-drawn path {
-  stroke-dashoffset: 0;
+.figure-caption {
+  margin-top: 0.875rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+  max-width: 62ch;
+}
+
+/* Segmented control used by the figures */
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.seg button {
+  font: 500 0.875rem/1.2 var(--sans);
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.5rem 0.85rem;
+  min-height: 36px;
+  cursor: pointer;
+}
+.seg button:hover {
+  color: var(--text);
+}
+.seg button[aria-pressed="true"],
+.seg button[aria-selected="true"] {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--border);
 }
 
 @media (prefers-reduced-motion: reduce) {

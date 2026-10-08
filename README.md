@@ -20,7 +20,7 @@ Project pages under `/work/<slug>/` are generated for every entry in `work` with
 
 | Figure | Source |
 |---|---|
-| Name and tokenizer comparison | `scripts/build_tokens.py`, run against stock GPT-2 and `vietnamese-gpt2/artifacts/tokenizer/tokenizer.json` |
+| Tokenizer comparison | `scripts/build_tokens.py`, run against stock GPT-2 and `vietnamese-gpt2/artifacts/tokenizer/tokenizer.json` |
 | Router thresholds and ViVQA-X results | `ViVQA-GPT-OSS-DRA`: `src/inference/adaptive_gptoss_inference.py`, README |
 | Teacher budget results | `LLaMA-OSS` README, Llama 3.2 3B, 0-shot |
 | RAG strategy scores | `RAG-Enhancement/apps/web/src/lib/strategy-benchmarks.ts` |

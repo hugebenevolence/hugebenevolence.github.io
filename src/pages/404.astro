@@ -3,18 +3,17 @@ import Base from "../layouts/Base.astro";
 ---
 
 <Base title="Page not found, Trần Đại Nhân">
-  <div class="wrap sheet nf ruled">
-    <div class="margin"><span class="m-item m-strong">404</span></div>
-    <div class="body">
-      <h1 class="section-title">This page isn't here</h1>
-      <p class="section-lede">The link may be from the old site. Everything now lives on the home page and the project pages.</p>
-      <p class="entry-links"><a href="/">Go to the home page</a><a href="/#work">See the work</a></p>
-    </div>
-  </div>
+  <section class="wrap nf">
+    <h1 class="section-title">This page isn't here</h1>
+    <p class="section-lede">The link may be from the old site. Everything now lives on the home page and the project pages.</p>
+    <p class="link-row"><a href="/">Go to the home page</a><a href="/#work">See selected work</a></p>
+  </section>
 </Base>
 
 <style>
   .nf {
-    padding-block: 6rem 4rem;
+    display: grid;
+    gap: 1rem;
+    padding-block: 7rem 5rem;
   }
 </style>
