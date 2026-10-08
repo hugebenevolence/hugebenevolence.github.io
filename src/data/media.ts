@@ -7,8 +7,6 @@ import lrQa from "../assets/shots/lr-qa.png";
 import lrCheck from "../assets/shots/lr-quickcheck.png";
 import kdhSession from "../assets/shots/kdh-session.png";
 import kdhLanding from "../assets/shots/kdh-landing.png";
-import ragTop from "../assets/shots/rag-top.png";
-import ragEvals from "../assets/shots/rag-evals.png";
 import smileAdmin from "../assets/shots/smile-admin.png";
 import smileVnpay from "../assets/shots/smile-vnpay.png";
 import smilePatient from "../assets/shots/smile-patient.png";
@@ -66,21 +64,6 @@ export const kdhShots: ShowcaseItem[] = [
     image: kdhLanding,
     alt: "Kẻ Độc Hành landing page with the headline 'Giảng được, mới là hiểu.'",
     caption: "“Giảng được, mới là hiểu”: if you can teach it, you understand it.",
-  },
-];
-
-export const ragShots: ShowcaseItem[] = [
-  {
-    label: "Workbench",
-    image: ragTop,
-    alt: "RAG Lab workbench: query, compare, jobs and evaluations views, and strategy cards for Hybrid RRF, Semantic and Cross encoder reranker with faithfulness, answer relevancy, precision and recall.",
-    caption: "One workspace instead of seven notebooks: run a strategy, compare several on the same question, queue indexing and evaluation jobs.",
-  },
-  {
-    label: "Evaluation record",
-    image: ragEvals,
-    alt: "RAG Lab evaluation record for Hybrid RRF on 52 samples with faithfulness 0.856, answer relevancy 0.575, precision 0.796 and recall 0.796.",
-    caption: "Each evaluation is stored with its sample size, metrics and report. Shown with the project's own test fixtures and its notebook results.",
   },
 ];
 

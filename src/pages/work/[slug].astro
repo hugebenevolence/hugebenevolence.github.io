@@ -7,9 +7,8 @@ import Tokenizer from "../../components/Tokenizer.astro";
 import VlmStages from "../../components/VlmStages.astro";
 import TeachBack from "../../components/TeachBack.astro";
 import PaymentSim from "../../components/PaymentSim.astro";
-import RagChart from "../../components/RagChart.astro";
 import Showcase from "../../components/Showcase.astro";
-import { litreviewShots, kdhShots, ragShots, smileShots, type ShowcaseItem } from "../../data/media";
+import { litreviewShots, kdhShots, smileShots, type ShowcaseItem } from "../../data/media";
 import { person, work, vivqaX, cotResults, type Work } from "../../data/profile";
 
 import vivqaFigure from "../../assets/vivqa-figure.png";
@@ -35,14 +34,12 @@ const figures: Record<string, { title: string; component: any }> = {
   "vietnamese-vlm": { title: "Training stages", component: VlmStages },
   "ke-doc-hanh": { title: "Two real golden-set turns", component: TeachBack },
   smile: { title: "Retries and double bookings, simulated", component: PaymentSim },
-  "rag-lab": { title: "Strategy scores", component: RagChart },
 };
 const figure = figures[item.slug];
 const Figure = figure?.component;
 const shots: Record<string, ShowcaseItem[]> = {
   litreview: litreviewShots,
   "ke-doc-hanh": kdhShots,
-  "rag-lab": ragShots,
   smile: smileShots,
 };
 const screens = shots[item.slug];

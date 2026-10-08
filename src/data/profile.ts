@@ -321,20 +321,6 @@ export const work: Work[] = [
     page: true,
   },
   {
-    slug: "rag-lab",
-    kind: "project",
-    name: "RAG Lab",
-    title: "RAG Lab: benchmarking Vietnamese retrieval",
-    tagline: "Seven retrieval strategies compared side by side on Vietnamese documents.",
-    role: "Author",
-    when: "2026",
-    lead: "Seven notebooks of retrieval ablations turned into a workspace: BM25, hybrid, reciprocal rank fusion, HyDE, MMR, cross-encoder reranking and semantic chunking, compared side by side on Vietnamese documents with a FastAPI backend, Redis job workers and a Next.js UI.",
-    body: [],
-    stack: ["FastAPI", "Redis", "RQ", "PostgreSQL", "Next.js", "Docker"],
-    links: [{ label: "Code", href: "https://github.com/hugebenevolence/RAG-Enhancement" }],
-    page: true,
-  },
-  {
     slug: "pawcal",
     kind: "project",
     name: "PawCal",
@@ -387,17 +373,6 @@ export const cotResults = {
     high: { gsm8k: 0.7559, math500: 0.474 },
   },
 };
-
-/** RAG-Enhancement/apps/web/src/lib/strategy-benchmarks.ts */
-export const ragBenchmarks = [
-  { id: "Hybrid RRF", faithfulness: 0.8558, answerRelevancy: 0.5746, contextPrecision: 0.7957, contextRecall: 0.7965 },
-  { id: "Semantic", faithfulness: 0.809, answerRelevancy: 0.611, contextPrecision: 0.8301, contextRecall: 0.6285 },
-  { id: "HyDE", faithfulness: 0.8071, answerRelevancy: 0.4967, contextPrecision: 0.8045, contextRecall: 0.6321 },
-  { id: "Hybrid", faithfulness: 0.7878, answerRelevancy: 0.5514, contextPrecision: 0.5729, contextRecall: 0.7311 },
-  { id: "MMR", faithfulness: 0.7711, answerRelevancy: 0.4924, contextPrecision: 0.8029, contextRecall: 0.5951 },
-  { id: "Cross-encoder", faithfulness: 0.7646, answerRelevancy: 0.6121, contextPrecision: 0.8237, contextRecall: 0.7061 },
-  { id: "BM25", faithfulness: 0.4414, answerRelevancy: 0.293, contextPrecision: 0.3601, contextRecall: 0.5064 },
-];
 
 /** Golden-set transcripts, eval/results/run-20260918-1722.md (real providers) */
 export const teachBack = [

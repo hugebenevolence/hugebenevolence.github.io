@@ -12,7 +12,6 @@ import codeRace from "../assets/code-race.jpg";
 import cat from "../assets/pet-cat.png";
 import dog from "../assets/pet-dog.png";
 import pawcal from "../assets/pawcal-banner.png";
-import ragTop from "../assets/shots/rag-top.png";
 
 const research = work.filter((w) => w.kind === "research");
 const projects = work.filter((w) => w.kind === "project");
@@ -20,10 +19,6 @@ const projectImages: Record<string, { image: ImageMetadata; alt: string }> = {
   pawcal: {
     image: pawcal,
     alt: "PawCal banner with the landing page on a laptop and a Zalo appointment reminder on a phone.",
-  },
-  "rag-lab": {
-    image: ragTop,
-    alt: "RAG Lab workbench with query, compare, jobs and evaluation views and strategy scores.",
   },
 };
 ---
